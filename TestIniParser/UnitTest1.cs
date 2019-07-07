@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 //
 
-using IniFileParser;
+using SoftCircuits.IniFileParser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;

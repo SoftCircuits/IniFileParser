@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 //
 
-namespace IniFileParser
+namespace SoftCircuits.IniFileParser
 {
     /// <summary>
     /// Represents one name/value pair in an INI file.

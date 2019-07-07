@@ -15,6 +15,9 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <PackageReleaseNotes>Changed namespace from IniFileParser to SoftCircuits.IniFileParser.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

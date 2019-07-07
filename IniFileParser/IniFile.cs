@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace IniFileParser
+namespace SoftCircuits.IniFileParser
 {
     /// <summary>
     /// Represents an entire INI file section.
