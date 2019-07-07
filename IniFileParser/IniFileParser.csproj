@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>SoftCircuits.IniFileParser</PackageId>
+    <Authors>Jonathan Wood</Authors>
+    <Company>SoftCircuits</Company>
+    <Copyright>Copyright © 2019 SoftCircuits</Copyright>
+    <Description>The IniFile class is a lightweight INI-file parser that can be used to easily read and write INI files. It includes direct support for string, int, double and bool setting types. In addition to reading and writing individual settings, it can also return all the settings within a particular INI-file section.</Description>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/SoftCircuits/IniFileParser</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SoftCircuits/IniFileParser</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ini ini-file inifile parser</PackageTags>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\License.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
