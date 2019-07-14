@@ -31,8 +31,8 @@ file.Save(path);
 ```cs
 // Read values
 IniFile file = new IniFile();
-file.Load(path);
 
+file.Load(path);
 string s = file.GetSetting(IniFile.DefaultSectionName, "String", string.Empty));
 int i = file.GetSetting(IniFile.DefaultSectionName, "Integer", 0));
 double d = file.GetSetting(IniFile.DefaultSectionName, "Double", 0.0));
