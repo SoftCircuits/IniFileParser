@@ -3,7 +3,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -212,7 +211,8 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Writes the current settings to an INI file. If the file already exists, it is overwritten.
+        /// Writes the current settings to an INI file. If the file already exists, it is
+        /// overwritten.
         /// </summary>
         /// <param name="filename">Path of file to write to.</param>
         public void Save(StreamWriter writer)
@@ -220,13 +220,14 @@ namespace SoftCircuits.IniFileParser
             bool firstLine = true;
             foreach (IniSection section in Sections.Values)
             {
-                if (firstLine)
-                    firstLine = false;
-                else
-                    writer.WriteLine();
-
                 if (section.Any())
                 {
+                    // Write empty line if starting new section
+                    if (firstLine)
+                        firstLine = false;
+                    else
+                        writer.WriteLine();
+
                     writer.WriteLine("[{0}]", section.Name);
                     foreach (IniSetting setting in section.Values)
                         writer.WriteLine("{0}={1}", setting.Name, setting.Value);
