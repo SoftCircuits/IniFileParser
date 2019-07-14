@@ -41,7 +41,7 @@ namespace SoftCircuits.IniFileParser
         /// Initializes a new IniFile instance.
         /// </summary>
         /// <param name="comparer"><c>StringComparer</c> used to compare section and setting names.
-        /// If not specified, <c>StringComparer.OrdinalIgnoreCase</c> (i.e. names are not
+        /// If not specified, <c>StringComparer.OrdinalIgnoreCase</c> is used (i.e. names are not
         /// case-sensitive).</param>
         public IniFile(StringComparer comparer = null)
         {
