@@ -29,7 +29,7 @@ namespace SoftCircuits.IniFileParser
     public class IniFile
     {
         /// <summary>
-        /// Section used for settings not under any section header (within [])
+        /// Section used when reading settings not in any section.
         /// </summary>
         public const string DefaultSectionName = "General";
 
@@ -44,8 +44,8 @@ namespace SoftCircuits.IniFileParser
         /// case-sensitive).</param>
         public IniFile(StringComparer comparer = null)
         {
+            Sections = new Dictionary<string, IniSection>(comparer);
             StringComparer = comparer ?? StringComparer.OrdinalIgnoreCase;
-            Sections = new Dictionary<string, IniSection>(StringComparer);
         }
 
         #region File functions
@@ -110,10 +110,11 @@ namespace SoftCircuits.IniFileParser
         /// <param name="reader">The <c>StreamReader</c> to load the settings from.</param>
         public void Load(StreamReader reader)
         {
-            Sections.Clear();
-
-            // Default section
+            // Tracks the current section
             IniSection section = null;
+
+            // Clear any existing data
+            Sections.Clear();
 
             string line;
             while ((line = reader.ReadLine()) != null)
