@@ -3,6 +3,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -422,8 +423,8 @@ namespace SoftCircuits.IniFileParser
         //    foreach (IniSection section in Sections.Values)
         //    {
         //        Debug.WriteLine(string.Format("[{0}]", section.Name));
-        //        foreach (IniSetting setting in section.Settings.Values)
-        //            Debug.WriteLine("[{0}]=[{1}]", setting.Name, setting.Value);
+        //        foreach (IniSetting setting in section.Values)
+        //            Debug.WriteLine(setting.ToString());
         //    }
         //}
 
