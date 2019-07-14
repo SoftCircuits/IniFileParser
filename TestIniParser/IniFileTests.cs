@@ -13,9 +13,21 @@ namespace TestIniParser
     [TestClass]
     public class IniFileTests
     {
-        private readonly string[] Sections = { "Section1", "Section2", "Section3", "Section4", "Section5" };
+        private readonly string[] Sections =
+        {
+            "GrRkfUPlTn",
+            "MHvqnvgjqL",
+            "mSXWTrLnvh",
+            "EYEkCmmnpH",
+            "GMtwdWTGLi",
+            "nOQdCPysMC",
+            "aKZSjRkKyl",
+            "oZtZhwJjBq",
+            "PTKHCxEBbT",
+            "PidCWOuCUy",
+        };
 
-        private readonly List<(string Name, string Value)> StringValues = new List<(string Name, string Value)>
+        private readonly (string Name, string Value)[] StringValues = new (string Name, string Value)[]
         {
             ("gbmoAGoUAX", "nhsvoVCFeS"),
             ("XknXpFZwAn", "lWShEVKQja"),
@@ -29,7 +41,7 @@ namespace TestIniParser
             ("iBJOskHHDX", "DazniZGfot"),
         };
 
-        private readonly List<(string Name, int Value)> IntValues = new List<(string Name, int Value)>
+        private readonly (string Name, int Value)[] IntValues = new (string Name, int Value)[]
         {
             ("RdxljKJfFz", 98423023),
             ("EnMeiBRqNg", 202612153),
@@ -43,7 +55,7 @@ namespace TestIniParser
             ("SXpdOXFNVr", 138444389),
         };
 
-        private readonly List<(string Name, double Value)> DoubleValues = new List<(string Name, double Value)>
+        private readonly (string Name, double Value)[] DoubleValues = new (string Name, double Value)[]
         {
             ("OwKRKjYfPH", 0.7080722530),
             ("FanKstopNJ", 0.5025695865),
@@ -57,7 +69,7 @@ namespace TestIniParser
             ("TWfWqkMubh", 0.1385922434),
         };
 
-        private readonly List<(string Name, bool Value)> BoolValues = new List<(string Name, bool Value)>
+        private readonly (string Name, bool Value)[] BoolValues = new (string Name, bool Value)[]
         {
             ("QKgfNDkkjI", true),
             ("dcciuRwwyD", true),
@@ -76,7 +88,7 @@ namespace TestIniParser
 
         public IniFileTests()
         {
-            TotalItems = StringValues.Count + IntValues.Count + DoubleValues.Count + BoolValues.Count;
+            TotalItems = StringValues.Length + IntValues.Length + DoubleValues.Length + BoolValues.Length;
         }
 
         [TestMethod]
@@ -177,25 +189,25 @@ namespace TestIniParser
             Assert.AreEqual(TotalItems, settings.Count());
 
             int i = 0, j;
-            for (j = 0; j < StringValues.Count; j++)
+            for (j = 0; j < StringValues.Length; j++)
             {
                 Assert.AreEqual(StringValues[j].Name, settings[j + i].Name);
                 Assert.AreEqual(StringValues[j].Value, settings[j + i].Value);
             }
             i += j;
-            for (j = 0; j < IntValues.Count; j++)
+            for (j = 0; j < IntValues.Length; j++)
             {
                 Assert.AreEqual(IntValues[j].Name, settings[j + i].Name);
                 Assert.AreEqual(IntValues[j].Value, int.Parse(settings[j + i].Value));
             }
             i += j;
-            for (j = 0; j < DoubleValues.Count; j++)
+            for (j = 0; j < DoubleValues.Length; j++)
             {
                 Assert.AreEqual(DoubleValues[j].Name, settings[j + i].Name);
                 Assert.AreEqual(DoubleValues[j].Value, double.Parse(settings[j + i].Value));
             }
             i += j;
-            for (j = 0; j < BoolValues.Count; j++)
+            for (j = 0; j < BoolValues.Length; j++)
             {
                 Assert.AreEqual(BoolValues[j].Name, settings[j + i].Name);
                 Assert.AreEqual(BoolValues[j].Value, bool.Parse(settings[j + i].Value));

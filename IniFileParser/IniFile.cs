@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2019 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,14 +12,14 @@ namespace SoftCircuits.IniFileParser
     /// <summary>
     /// Represents an entire INI file section.
     /// </summary>
-    internal class IniSection
+    internal class IniSection : Dictionary<string, IniSetting>
     {
         public string Name { get; set; }
-        public Dictionary<string, IniSetting> Settings { get; private set; }
 
-        public IniSection(StringComparer comparer)
+        public IniSection(string name, StringComparer comparer)
+            : base(comparer)
         {
-            Settings = new Dictionary<string, IniSetting>(comparer);
+            Name = name;
         }
     }
 
@@ -137,7 +136,7 @@ namespace SoftCircuits.IniFileParser
                         {
                             if (!Sections.TryGetValue(name, out section))
                             {
-                                section = new IniSection(StringComparer) { Name = name };
+                                section = new IniSection(name, StringComparer);
                                 Sections.Add(section.Name, section);
                             }
                         }
@@ -161,15 +160,13 @@ namespace SoftCircuits.IniFileParser
 
                         if (name.Length > 0)
                         {
-
                             if (section == null)
                             {
-                                section = new IniSection(StringComparer) { Name = DefaultSectionName };
+                                section = new IniSection(DefaultSectionName, StringComparer);
                                 Sections.Add(section.Name, section);
                             }
 
-
-                            if (section.Settings.TryGetValue(name, out IniSetting setting))
+                            if (section.TryGetValue(name, out IniSetting setting))
                             {
                                 // Override previously read value
                                 setting.Value = value;
@@ -178,7 +175,7 @@ namespace SoftCircuits.IniFileParser
                             {
                                 // Create new setting
                                 setting = new IniSetting { Name = name, Value = value };
-                                section.Settings.Add(name, setting);
+                                section.Add(name, setting);
                             }
                         }
                     }
@@ -227,10 +224,10 @@ namespace SoftCircuits.IniFileParser
                 else
                     writer.WriteLine();
 
-                if (section.Settings.Any())
+                if (section.Any())
                 {
                     writer.WriteLine("[{0}]", section.Name);
-                    foreach (IniSetting setting in section.Settings.Values)
+                    foreach (IniSetting setting in section.Values)
                         writer.WriteLine("{0}={1}", setting.Name, setting.Value);
                 }
             }
@@ -251,7 +248,7 @@ namespace SoftCircuits.IniFileParser
         {
             if (Sections.TryGetValue(section, out IniSection iniSection))
             {
-                if (iniSection.Settings.TryGetValue(setting, out IniSetting iniSetting))
+                if (iniSection.TryGetValue(setting, out IniSetting iniSetting))
                     return iniSetting.Value;
             }
             return defaultValue;
@@ -321,7 +318,7 @@ namespace SoftCircuits.IniFileParser
         {
             if (Sections.TryGetValue(section, out IniSection iniSection))
             {
-                foreach (var setting in iniSection.Settings)
+                foreach (var setting in iniSection)
                     yield return setting.Value;
             }
         }
@@ -341,13 +338,13 @@ namespace SoftCircuits.IniFileParser
         {
             if (!Sections.TryGetValue(section, out IniSection iniSection))
             {
-                iniSection = new IniSection(StringComparer) { Name = section };
+                iniSection = new IniSection(section, StringComparer);
                 Sections.Add(iniSection.Name, iniSection);
             }
-            if (!iniSection.Settings.TryGetValue(setting, out IniSetting iniSetting))
+            if (!iniSection.TryGetValue(setting, out IniSetting iniSetting))
             {
                 iniSetting = new IniSetting { Name = setting };
-                iniSection.Settings.Add(iniSetting.Name, iniSetting);
+                iniSection.Add(iniSetting.Name, iniSetting);
             }
             iniSetting.Value = value;
         }
