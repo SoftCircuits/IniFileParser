@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace SoftCircuits.IniFileParser
 {
@@ -17,9 +18,9 @@ namespace SoftCircuits.IniFileParser
         public string Name { get; set; }
         public Dictionary<string, IniSetting> Settings { get; private set; }
 
-        public IniSection()
+        public IniSection(StringComparer comparer)
         {
-            Settings = new Dictionary<string, IniSetting>(StringComparer.OrdinalIgnoreCase);
+            Settings = new Dictionary<string, IniSetting>(comparer);
         }
     }
 
@@ -33,78 +34,151 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public const string DefaultSectionName = "General";
 
-        private Dictionary<string, IniSection> Sections = new Dictionary<string, IniSection>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, IniSection> Sections;
+        private StringComparer StringComparer;
+
+        /// <summary>
+        /// Initializes a new IniFile instance.
+        /// </summary>
+        /// <param name="comparer"><c>StringComparer</c> used to compare section and setting names.
+        /// If not specified, <c>StringComparer.OrdinalIgnoreCase</c> (i.e. names are not
+        /// case-sensitive).</param>
+        public IniFile(StringComparer comparer = null)
+        {
+            StringComparer = comparer ?? StringComparer.OrdinalIgnoreCase;
+            Sections = new Dictionary<string, IniSection>(StringComparer);
+        }
 
         #region File functions
 
         /// <summary>
         /// Loads an INI settings file.
         /// </summary>
-        /// <param name="filename">Path of file to load.</param>
-        public void Load(string filename)
+        /// <param name="path">Path of file to load.</param>
+        public void Load(string path)
+        {
+            using (StreamReader reader = new StreamReader(path))
+            {
+                Load(reader);
+            }
+        }
+
+        /// <summary>
+        /// Loads an INI settings file.
+        /// </summary>
+        /// <param name="path">Path of file to load.</param>
+        /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
+        /// beginning of the file.</param>
+        public void Load(string path, bool detectEncodingFromByteOrderMarks)
+        {
+            using (StreamReader reader = new StreamReader(path, detectEncodingFromByteOrderMarks))
+            {
+                Load(reader);
+            }
+        }
+
+        /// <summary>
+        /// Loads an INI settings file.
+        /// </summary>
+        /// <param name="path">Path of file to load.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public void Load(string path, Encoding encoding)
+        {
+            using (StreamReader reader = new StreamReader(path, encoding))
+            {
+                Load(reader);
+            }
+        }
+
+        /// <summary>
+        /// Loads an INI settings file.
+        /// </summary>
+        /// <param name="path">Path of file to load.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
+        /// beginning of the file.</param>
+        public void Load(string path, Encoding encoding, bool detectEncodingFromByteOrderMarks)
+        {
+            using (StreamReader reader = new StreamReader(path, encoding, detectEncodingFromByteOrderMarks))
+            {
+                Load(reader);
+            }
+        }
+
+        /// <summary>
+        /// Loads an INI settings file.
+        /// </summary>
+        /// <param name="reader">The <c>StreamReader</c> to load the settings from.</param>
+        public void Load(StreamReader reader)
         {
             Sections.Clear();
 
             // Default section
-            IniSection section = new IniSection { Name = DefaultSectionName };
-            Sections.Add(section.Name, section);
+            IniSection section = null;
 
             string line;
-            using (StreamReader file = new StreamReader(filename))
+            while ((line = reader.ReadLine()) != null)
             {
-                while ((line = file.ReadLine()) != null)
+                line = line.TrimStart();
+                if (line.Length > 0)
                 {
-                    line = line.TrimStart();
-                    if (line.Length > 0)
+                    if (line[0] == ';')
                     {
-                        if (line[0] == ';')
+                        // Ignore comments
+                    }
+                    else if (line[0] == '[')
+                    {
+                        // Parse section header
+                        int pos = line.IndexOf(']', 1);
+                        if (pos == -1)
+                            pos = line.Length;
+                        string name = line.Substring(1, pos - 1).Trim();
+                        if (name.Length > 0)
                         {
-                            // Ignore comments
-                        }
-                        else if (line[0] == '[')
-                        {
-                            // Parse section header
-                            int pos = line.IndexOf(']', 1);
-                            if (pos == -1)
-                                pos = line.Length;
-                            string name = line.Substring(1, pos - 1).Trim();
-                            if (name.Length > 0)
+                            if (!Sections.TryGetValue(name, out section))
                             {
-                                if (!Sections.TryGetValue(name, out section))
-                                {
-                                    section = new IniSection { Name = name };
-                                    Sections.Add(section.Name, section);
-                                }
+                                section = new IniSection(StringComparer) { Name = name };
+                                Sections.Add(section.Name, section);
                             }
+                        }
+                    }
+                    else
+                    {
+                        // Parse setting name and value
+                        string name, value;
+
+                        int pos = line.IndexOf('=');
+                        if (pos == -1)
+                        {
+                            name = line.Trim();
+                            value = string.Empty;
                         }
                         else
                         {
-                            // Parse setting name and value
-                            string name, value;
+                            name = line.Substring(0, pos).Trim();
+                            value = line.Substring(pos + 1);
+                        }
 
-                            int pos = line.IndexOf('=');
-                            if (pos == -1)
+                        if (name.Length > 0)
+                        {
+
+                            if (section == null)
                             {
-                                name = line.Trim();
-                                value = string.Empty;
+                                section = new IniSection(StringComparer) { Name = DefaultSectionName };
+                                Sections.Add(section.Name, section);
+                            }
+
+
+                            if (section.Settings.TryGetValue(name, out IniSetting setting))
+                            {
+                                // Override previously read value
+                                setting.Value = value;
                             }
                             else
                             {
-                                name = line.Substring(0, pos).Trim();
-                                value = line.Substring(pos + 1);
-                            }
-
-                            if (name.Length > 0)
-                            {
-                                if (section.Settings.TryGetValue(name, out IniSetting setting))
-                                {
-                                    setting.Value = value;
-                                }
-                                else
-                                {
-                                    setting = new IniSetting { Name = name, Value = value };
-                                    section.Settings.Add(name, setting);
-                                }
+                                // Create new setting
+                                setting = new IniSetting { Name = name, Value = value };
+                                section.Settings.Add(name, setting);
                             }
                         }
                     }
@@ -113,27 +187,51 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
+        /// Saves the current settings to an INI file. If the file already exists, it is
+        /// overwritten.
+        /// </summary>
+        /// <param name="path">Path of the file to write to.</param>
+        public void Save(string path)
+        {
+            using (StreamWriter writer = new StreamWriter(path, false))
+            {
+                Save(writer);
+            }
+        }
+
+        /// <summary>
+        /// Saves the current settings to an INI file. If the file already exists, it is
+        /// overwritten.
+        /// </summary>
+        /// <param name="path">Path of the file to write to.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public void Save(string path, Encoding encoding)
+        {
+            using (StreamWriter writer = new StreamWriter(path, false, encoding))
+            {
+                Save(writer);
+            }
+        }
+
+        /// <summary>
         /// Writes the current settings to an INI file. If the file already exists, it is overwritten.
         /// </summary>
         /// <param name="filename">Path of file to write to.</param>
-        public void Save(string filename)
+        public void Save(StreamWriter writer)
         {
-            using (StreamWriter file = new StreamWriter(filename, false))
+            bool firstLine = true;
+            foreach (IniSection section in Sections.Values)
             {
-                bool firstLine = true;
-                foreach (IniSection section in Sections.Values)
-                {
-                    if (firstLine)
-                        firstLine = false;
-                    else
-                        file.WriteLine();
+                if (firstLine)
+                    firstLine = false;
+                else
+                    writer.WriteLine();
 
-                    if (section.Settings.Any())
-                    {
-                        file.WriteLine("[{0}]", section.Name);
-                        foreach (IniSetting setting in section.Settings.Values)
-                            file.WriteLine("{0}={1}", setting.Name, setting.Value);
-                    }
+                if (section.Settings.Any())
+                {
+                    writer.WriteLine("[{0}]", section.Name);
+                    foreach (IniSetting setting in section.Settings.Values)
+                        writer.WriteLine("{0}={1}", setting.Name, setting.Value);
                 }
             }
         }
@@ -199,9 +297,19 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the specified setting value as a Boolean.</returns>
         public bool GetSetting(string section, string setting, bool defaultValue)
         {
-            if (ConvertToBool(GetSetting(section, setting), out bool value))
+            if (BooleanTryParse(GetSetting(section, setting), out bool value))
                 return value;
             return defaultValue;
+        }
+
+        /// <summary>
+        /// Returns the name of all sections in the current INI file.
+        /// </summary>
+        /// <returns>A list of all section names.</returns>
+        public IEnumerable<string> GetSections()
+        {
+            foreach (KeyValuePair<string, IniSection> section in Sections)
+                yield return section.Key;
         }
 
         /// <summary>
@@ -233,7 +341,7 @@ namespace SoftCircuits.IniFileParser
         {
             if (!Sections.TryGetValue(section, out IniSection iniSection))
             {
-                iniSection = new IniSection { Name = section };
+                iniSection = new IniSection(StringComparer) { Name = section };
                 Sections.Add(iniSection.Name, iniSection);
             }
             if (!iniSection.Settings.TryGetValue(setting, out IniSetting iniSetting))
@@ -284,21 +392,25 @@ namespace SoftCircuits.IniFileParser
         private string[] TrueStrings = { "true", "yes", "on" };
         private string[] FalseStrings = { "false", "no", "off" };
 
-        private bool ConvertToBool(string s, out bool value)
+        private bool BooleanTryParse(string s, out bool value)
         {
-
             if (TrueStrings.Any(s2 => string.Compare(s, s2, true) == 0))
+            {
                 value = true;
-            else if (FalseStrings.Any(s2 => string.Compare(s, s2, true) == 0))
-                value = false;
-            else if (int.TryParse(s, out int i))
-                value = (i != 0);
-            else
+                return true;
+            }
+            if (FalseStrings.Any(s2 => string.Compare(s, s2, true) == 0))
             {
                 value = false;
-                return false;
+                return true;
             }
-            return true;
+            if (int.TryParse(s, out int i))
+            {
+                value = (i != 0);
+                return true;
+            }
+            value = false;
+            return false;
         }
 
         #endregion

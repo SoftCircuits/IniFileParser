@@ -1,0 +1,225 @@
+// Copyright (c) 2019 Jonathan Wood (www.softcircuits.com)
+// Licensed under the MIT license.
+//
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SoftCircuits.IniFileParser;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace TestIniParser
+{
+    [TestClass]
+    public class IniFileTests
+    {
+        private string[] Sections = { "Section1", "Section2", "Section3", "Section4", "Section5" };
+
+        private List<(string Name, string Value)> StringValues = new List<(string Name, string Value)>
+        {
+            ("gbmoAGoUAX", "nhsvoVCFeS"),
+            ("XknXpFZwAn", "lWShEVKQja"),
+            ("HDekUKYhQI", "JECcqkbsWj"),
+            ("OMzEAOThDc", "AOLxPMBlys"),
+            ("nLQfiLEUbC", "IwmKthVzgI"),
+            ("pBUqOjUVrP", "KUlfghqlwM"),
+            ("vMKHoVuDdp", "GLNbCnhGQR"),
+            ("yhUWOpEMys", "hQlQolVhVy"),
+            ("cxIygWRbgc", "jjYvzGlYEg"),
+            ("iBJOskHHDX", "DazniZGfot"),
+        };
+
+        private List<(string Name, int Value)> IntValues = new List<(string Name, int Value)>
+        {
+            ("RdxljKJfFz", 98423023),
+            ("EnMeiBRqNg", 202612153),
+            ("bUHJQbePEf", 386456548),
+            ("nyvZolLMUc", 127322448),
+            ("ynqwRVbRwF", 197385250),
+            ("gKukfnfwLp", 106966128),
+            ("tBlZXBkTlB", 67822807),
+            ("HnonxtSYwE", 277714502),
+            ("vejHyhMynk", 179483129),
+            ("SXpdOXFNVr", 138444389),
+        };
+
+        private List<(string Name, double Value)> DoubleValues = new List<(string Name, double Value)>
+        {
+            ("OwKRKjYfPH", 0.7080722530),
+            ("FanKstopNJ", 0.5025695865),
+            ("zEJOKrIoRN", 0.8479851980),
+            ("XIIdmOtRLq", 0.4750674692),
+            ("vPveQiqyTX", 0.1760267518),
+            ("YXVkXUaAwS", 0.0971605970),
+            ("VGhLoQaPqB", 0.8404616145),
+            ("dIvDIbeEhZ", 0.2999469886),
+            ("EZTmbnoMFN", 0.0680769511),
+            ("TWfWqkMubh", 0.1385922434),
+        };
+
+        private List<(string Name, bool Value)> BoolValues = new List<(string Name, bool Value)>
+        {
+            ("QKgfNDkkjI", true),
+            ("dcciuRwwyD", true),
+            ("pvKHvDqNCm", false),
+            ("oOriwnnKni", true),
+            ("aPnWFKvbzK", false),
+            ("NeMmlJsCwa", true),
+            ("wMfdfKYEKj", false),
+            ("GLdUrFdAex", false),
+            ("VsmGCAwcTp", true),
+            ("KcNDDohDUb", false),
+        };
+
+        // Sum of all values lists
+        int TotalItems;
+
+        public IniFileTests()
+        {
+            TotalItems = StringValues.Count + IntValues.Count + DoubleValues.Count + BoolValues.Count;
+        }
+
+        [TestMethod]
+        public void TestValues()
+        {
+            IniFile file = new IniFile();
+            foreach (string section in Sections)
+            {
+                foreach ((string Name, string Value) nameValues in StringValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, int Value) nameValues in IntValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, double Value) nameValues in DoubleValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, bool Value) nameValues in BoolValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+            }
+            byte[] buffer = SaveToBytes(file);
+
+            file.Clear();
+            Assert.AreEqual(0, file.GetSections().Count());
+
+            LoadFromBytes(file, buffer);
+            Assert.AreEqual(Sections.Length, file.GetSections().Count());
+            foreach (string section in Sections)
+            {
+                Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
+                foreach ((string Name, string Value) nameValues in StringValues)
+                    Assert.AreEqual(nameValues.Value, file.GetSetting(section, nameValues.Name, string.Empty));
+                foreach ((string Name, int Value) nameValues in IntValues)
+                    Assert.AreEqual(nameValues.Value, file.GetSetting(section, nameValues.Name, 0));
+                foreach ((string Name, double Value) nameValues in DoubleValues)
+                    Assert.AreEqual(nameValues.Value, file.GetSetting(section, nameValues.Name, 0.0));
+                foreach ((string Name, bool Value) nameValues in BoolValues)
+                    Assert.AreEqual(nameValues.Value, file.GetSetting(section, nameValues.Name, false));
+            }
+        }
+
+        [TestMethod]
+        public void TestStringComparer()
+        {
+            IniFile file = new IniFile(StringComparer.Ordinal);
+            foreach (string section in Sections)
+            {
+                foreach ((string Name, string Value) nameValues in StringValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, int Value) nameValues in IntValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, double Value) nameValues in DoubleValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, bool Value) nameValues in BoolValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+            }
+            byte[] buffer = SaveToBytes(file);
+
+            file.Clear();
+            Assert.AreEqual(0, file.GetSections().Count());
+
+            LoadFromBytes(file, buffer);
+            Assert.AreEqual(Sections.Length, file.GetSections().Count());
+            foreach (string section in Sections)
+            {
+                Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
+                foreach ((string Name, string Value) nameValues in StringValues)
+                    Assert.AreEqual(string.Empty, file.GetSetting(section, nameValues.Name.ToUpper(), string.Empty));
+                foreach ((string Name, int Value) nameValues in IntValues)
+                    Assert.AreEqual(0, file.GetSetting(section, nameValues.Name.ToLower(), 0));
+                foreach ((string Name, double Value) nameValues in DoubleValues)
+                    Assert.AreEqual(0.0, file.GetSetting(section, nameValues.Name.ToUpper(), 0.0));
+                foreach ((string Name, bool Value) nameValues in BoolValues)
+                    Assert.AreEqual(false, file.GetSetting(section, nameValues.Name.ToLower(), false));
+            }
+        }
+
+        [TestMethod]
+        public void TestSection()
+        {
+            IniFile file = new IniFile(StringComparer.Ordinal);
+            foreach (string section in Sections)
+            {
+                foreach ((string Name, string Value) nameValues in StringValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, int Value) nameValues in IntValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, double Value) nameValues in DoubleValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+                foreach ((string Name, bool Value) nameValues in BoolValues)
+                    file.SetSetting(section, nameValues.Name, nameValues.Value);
+            }
+            byte[] buffer = SaveToBytes(file);
+
+            file.Clear();
+            Assert.AreEqual(0, file.GetSections().Count());
+
+            LoadFromBytes(file, buffer);
+            Assert.AreEqual(Sections.Length, file.GetSections().Count());
+            var settings = file.GetSectionSettings(Sections[0]).ToArray();
+            Assert.AreEqual(TotalItems, settings.Count());
+
+            int i = 0, j;
+            for (j = 0; j < StringValues.Count; j++)
+            {
+                Assert.AreEqual(StringValues[j].Name, settings[j + i].Name);
+                Assert.AreEqual(StringValues[j].Value, settings[j + i].Value);
+            }
+            i += j;
+            for (j = 0; j < IntValues.Count; j++)
+            {
+                Assert.AreEqual(IntValues[j].Name, settings[j + i].Name);
+                Assert.AreEqual(IntValues[j].Value, int.Parse(settings[j + i].Value));
+            }
+            i += j;
+            for (j = 0; j < DoubleValues.Count; j++)
+            {
+                Assert.AreEqual(DoubleValues[j].Name, settings[j + i].Name);
+                Assert.AreEqual(DoubleValues[j].Value, double.Parse(settings[j + i].Value));
+            }
+            i += j;
+            for (j = 0; j < BoolValues.Count; j++)
+            {
+                Assert.AreEqual(BoolValues[j].Name, settings[j + i].Name);
+                Assert.AreEqual(BoolValues[j].Value, bool.Parse(settings[j + i].Value));
+            }
+        }
+
+        private byte[] SaveToBytes(IniFile file)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            using (StreamWriter writer = new StreamWriter(stream))
+            {
+                file.Save(writer);
+                writer.Flush();
+                return stream.ToArray();
+            }
+        }
+
+        private void LoadFromBytes(IniFile file, byte[] buffer)
+        {
+            using (MemoryStream stream = new MemoryStream(buffer))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                file.Load(reader);
+            }
+        }
+    }
+}
