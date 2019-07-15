@@ -8,9 +8,9 @@ Install-Package SoftCircuits.IniFileParser
 
 The `IniFile` class is a lightweight INI-file parser that can be used to easily read and write INI files. It includes direct support for `string`, `int`, `double` and `bool` setting types.
 
-In addition to reading and writing individual settings, it can also return all the settings within a particular INI-file section.
+In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
 
-The `SetSetting()` method is overloaded to accept different value types. The `GetSetting()` method is also overloaded. The `defaultValue` parameter type specifies the type that should be returned. If no `defaultValue` is specified, `GetSetting()` always returns `string`. If `GetSetting()` cannot find the named setting, or if it cannot be converted to the specified type, the `defaultValue` value is returned.
+The `SetSetting()` method is overloaded to accept different value types. The `GetSetting()` method is also overloaded to allow different `defaultValue` parameter types. The `defaultValue` parameter specifies the value to return if the setting was not found or could not be converted to the specified type. The `defaultValue` parameter also specifies the return type.
 
 #### Write Example
 
