@@ -153,20 +153,36 @@ namespace TestIniParser
             {
                 Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
                 foreach ((string Name, string Value) nameValue in StringValues)
+                {
                     Assert.AreEqual(string.Empty, file.GetSetting(section, nameValue.Name.ToUpper(), string.Empty));
+                    Assert.AreEqual(string.Empty, file.GetSetting(section, nameValue.Name.ToLower(), string.Empty));
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, string.Empty));
+                }
                 foreach ((string Name, int Value) nameValue in IntValues)
+                {
+                    Assert.AreEqual(0, file.GetSetting(section, nameValue.Name.ToUpper(), 0));
                     Assert.AreEqual(0, file.GetSetting(section, nameValue.Name.ToLower(), 0));
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0));
+                }
                 foreach ((string Name, double Value) nameValue in DoubleValues)
+                {
                     Assert.AreEqual(0.0, file.GetSetting(section, nameValue.Name.ToUpper(), 0.0));
+                    Assert.AreEqual(0.0, file.GetSetting(section, nameValue.Name.ToLower(), 0.0));
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0.0));
+                }
                 foreach ((string Name, bool Value) nameValue in BoolValues)
+                {
+                    Assert.AreEqual(false, file.GetSetting(section, nameValue.Name.ToUpper(), false));
                     Assert.AreEqual(false, file.GetSetting(section, nameValue.Name.ToLower(), false));
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, false));
+                }
             }
         }
 
         [TestMethod]
         public void TestSection()
         {
-            IniFile file = new IniFile(StringComparer.Ordinal);
+            IniFile file = new IniFile();
             foreach (string section in Sections)
             {
                 foreach ((string Name, string Value) nameValue in StringValues)
