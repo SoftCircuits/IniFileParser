@@ -10,7 +10,7 @@ The `IniFile` class is a lightweight INI-file parser that can be used to easily 
 
 In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
 
-The `SetSetting()` method is overloaded to accept different value types. The `GetSetting()` method is also overloaded to allow different `defaultValue` parameter types. The `defaultValue` parameter specifies the value to return if the setting was not found or could not be converted to the specified type. The `defaultValue` parameter also specifies the return type.
+The `SetSetting()` method is overloaded to accept different value types. The `GetSetting()` method is also overloaded to allow different `defaultValue` parameter types. The `defaultValue` parameter specifies the value to return if the setting was not found or could not be converted to the specified type. The `defaultValue` parameter type also indicates the return type.
 
 #### Write Example
 
