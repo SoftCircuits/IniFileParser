@@ -389,25 +389,33 @@ namespace SoftCircuits.IniFileParser
 
         #region Boolean parsing
 
-        private string[] TrueStrings = { "true", "yes", "on" };
-        private string[] FalseStrings = { "false", "no", "off" };
+        private static Dictionary<string, bool> BoolStringLookup = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["true"] = true,
+            ["false"] = false,
+            ["yes"] = true,
+            ["no"] = false,
+            ["on"] = true,
+            ["off"] = false,
+            ["1"] = true,
+            ["0"] = false,
+        };
 
         private bool BooleanTryParse(string s, out bool value)
         {
-            if (TrueStrings.Any(s2 => string.Compare(s, s2, true) == 0))
+            if (s != null)
             {
-                value = true;
-                return true;
-            }
-            if (FalseStrings.Any(s2 => string.Compare(s, s2, true) == 0))
-            {
-                value = false;
-                return true;
-            }
-            if (int.TryParse(s, out int i))
-            {
-                value = (i != 0);
-                return true;
+                if (BoolStringLookup.TryGetValue(s, out bool b))
+                {
+                    value = b;
+                    return true;
+                }
+                if (int.TryParse(s, out int i))
+                {
+                    // Non-zero integer = true; Zero = false
+                    value = (i != 0);
+                    return true;
+                }
             }
             value = false;
             return false;
