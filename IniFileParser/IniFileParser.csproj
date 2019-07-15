@@ -8,16 +8,20 @@
     <Authors>Jonathan Wood</Authors>
     <Company>SoftCircuits</Company>
     <Copyright>Copyright © 2019 SoftCircuits</Copyright>
-    <Description>The IniFile class is a lightweight INI-file parser that can be used to easily read and write INI files. It includes direct support for string, int, double and bool setting types. In addition to reading and writing individual settings, it can also return all the settings within a particular INI-file section.</Description>
+    <Description>The IniFile class is a lightweight INI-file parser that can be used to easily read and write INI files. It includes direct support for string, int, double and bool setting types.
+
+In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
+
+The SetSetting() method is overloaded to accept different value types. The GetSetting() method is also overloaded to allow different defaultValue parameter types. The defaultValue parameter specifies the value to return if the setting was not found or could not be converted to the specified type. The defaultValue parameter type also indicates the return type.</Description>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/SoftCircuits/IniFileParser</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SoftCircuits/IniFileParser</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <PackageReleaseNotes>Minor tweaks; Testing;</PackageReleaseNotes>
+    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <PackageReleaseNotes>Extended unit tests; Minor tweaks;</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
