@@ -19,9 +19,10 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>1.0.4</Version>
-    <AssemblyVersion>1.0.4.0</AssemblyVersion>
-    <PackageReleaseNotes>Extended unit tests; Minor tweaks;</PackageReleaseNotes>
+    <Version>1.0.5</Version>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <PackageReleaseNotes>Added the ability to customer interpretation of Boolean values; Extended unit tests; Minor tweaks;</PackageReleaseNotes>
+    <FileVersion>1.0.5.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

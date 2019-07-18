@@ -8,8 +8,6 @@ namespace SoftCircuits.IniFileParser
     /// </summary>
     public class IniSetting
     {
-        private static readonly string Null = "(null)";
-
         /// <summary>
         /// The name of this INI setting.
         /// </summary>
@@ -20,6 +18,6 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public string Value { get; set; }
 
-        public override string ToString() => $"{Name ?? Null}={(Value != null ? $"\"{Value}\"" : Null)}";
+        public override string ToString() => $"{Name ?? "(null)"}={Value ?? string.Empty}";
     }
 }

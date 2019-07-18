@@ -3,26 +3,13 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace SoftCircuits.IniFileParser
 {
-    /// <summary>
-    /// Represents an entire INI file section.
-    /// </summary>
-    internal class IniSection : Dictionary<string, IniSetting>
-    {
-        public string Name { get; set; }
-
-        public IniSection(string name, StringComparer comparer)
-            : base(comparer)
-        {
-            Name = name;
-        }
-    }
-
     /// <summary>
     /// Class to create and read INI files.
     /// </summary>
@@ -33,25 +20,26 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public const string DefaultSectionName = "General";
 
-        private Dictionary<string, IniSection> Sections;
-        private StringComparer StringComparer;
+        private readonly Dictionary<string, IniSection> Sections;
+        private readonly StringComparer StringComparer;
+        private readonly BoolOptions BoolOptions;
 
         /// <summary>
         /// Initializes a new IniFile instance.
         /// </summary>
         /// <param name="comparer"><c>StringComparer</c> used to compare section and setting names.
-        /// If not specified, <c>StringComparer.OrdinalIgnoreCase</c> is used (i.e. names are not
-        /// case-sensitive).</param>
-        public IniFile(StringComparer comparer = null)
+        /// If not specified, <c>StringComparer.CurrentCultureIgnoreCase</c> is used (i.e. names
+        /// are not case-sensitive).</param>
+        /// <param name="boolOptions">Optional settings for interpreting <c>bool</c> values.</param>
+        public IniFile(StringComparer comparer = null, BoolOptions boolOptions = null)
         {
             Sections = new Dictionary<string, IniSection>(comparer);
-            StringComparer = comparer ?? StringComparer.OrdinalIgnoreCase;
+            StringComparer = comparer ?? StringComparer.CurrentCultureIgnoreCase;
+            BoolOptions = boolOptions ?? new BoolOptions();
         }
 
-        #region File functions
-
         /// <summary>
-        /// Loads an INI settings file.
+        /// Clears any existing settings and loads the settings from an INI file.
         /// </summary>
         /// <param name="path">Path of file to load.</param>
         public void Load(string path)
@@ -63,7 +51,7 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Loads an INI settings file.
+        /// Clears any existing settings and loads the settings from an INI file.
         /// </summary>
         /// <param name="path">Path of file to load.</param>
         /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
@@ -77,7 +65,7 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Loads an INI settings file.
+        /// Clears any existing settings and loads the settings from an INI file.
         /// </summary>
         /// <param name="path">Path of file to load.</param>
         /// <param name="encoding">The character encoding to use.</param>
@@ -90,7 +78,7 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Loads an INI settings file.
+        /// Clears any existing settings and loads the settings from an INI file.
         /// </summary>
         /// <param name="path">Path of file to load.</param>
         /// <param name="encoding">The character encoding to use.</param>
@@ -105,7 +93,7 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Loads an INI settings file.
+        /// Clears any existing settings and loads the settings from an INI file.
         /// </summary>
         /// <param name="reader">The <c>StreamReader</c> to load the settings from.</param>
         public void Load(StreamReader reader)
@@ -221,7 +209,7 @@ namespace SoftCircuits.IniFileParser
             bool firstLine = true;
             foreach (IniSection section in Sections.Values)
             {
-                if (section.Any())
+                if (section.Count > 0)
                 {
                     // Write empty line if starting new section
                     if (firstLine)
@@ -231,12 +219,13 @@ namespace SoftCircuits.IniFileParser
 
                     writer.WriteLine("[{0}]", section.Name);
                     foreach (IniSetting setting in section.Values)
-                        writer.WriteLine("{0}={1}", setting.Name, setting.Value);
+                    {
+                        Debug.Assert(!string.IsNullOrWhiteSpace(setting.Name));
+                        writer.WriteLine(setting.ToString());
+                    }
                 }
             }
         }
-
-        #endregion
 
         #region Read values
 
@@ -249,6 +238,11 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the specified setting value.</returns>
         public string GetSetting(string section, string setting, string defaultValue = null)
         {
+            if (section == null)
+                throw new NullReferenceException(nameof(section));
+            if (setting == null)
+                throw new NullReferenceException(nameof(setting));
+
             if (Sections.TryGetValue(section, out IniSection iniSection))
             {
                 if (iniSection.TryGetValue(setting, out IniSetting iniSetting))
@@ -297,7 +291,7 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the specified setting value as a Boolean.</returns>
         public bool GetSetting(string section, string setting, bool defaultValue)
         {
-            if (BooleanTryParse(GetSetting(section, setting), out bool value))
+            if (BoolOptions.TryParse(GetSetting(section, setting), out bool value))
                 return value;
             return defaultValue;
         }
@@ -306,11 +300,7 @@ namespace SoftCircuits.IniFileParser
         /// Returns the name of all sections in the current INI file.
         /// </summary>
         /// <returns>A list of all section names.</returns>
-        public IEnumerable<string> GetSections()
-        {
-            foreach (KeyValuePair<string, IniSection> section in Sections)
-                yield return section.Key;
-        }
+        public IEnumerable<string> GetSections() => Sections.Keys;
 
         /// <summary>
         /// Returns all settings in the given INI section.
@@ -319,11 +309,9 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the settings in the given INI section.</returns>
         public IEnumerable<IniSetting> GetSectionSettings(string section)
         {
-            if (Sections.TryGetValue(section, out IniSection iniSection))
-            {
-                foreach (var setting in iniSection)
-                    yield return setting.Value;
-            }
+            return (Sections.TryGetValue(section, out IniSection iniSection)) ?
+                iniSection.Values :
+                Enumerable.Empty<IniSetting>();
         }
 
         #endregion
@@ -339,6 +327,11 @@ namespace SoftCircuits.IniFileParser
         /// <param name="value">The value of the INI-file setting</param>
         public void SetSetting(string section, string setting, string value)
         {
+            if (section == null)
+                throw new NullReferenceException(nameof(section));
+            if (setting == null)
+                throw new NullReferenceException(nameof(setting));
+
             if (!Sections.TryGetValue(section, out IniSection iniSection))
             {
                 iniSection = new IniSection(section, StringComparer);
@@ -383,42 +376,6 @@ namespace SoftCircuits.IniFileParser
         public void SetSetting(string section, string setting, bool value)
         {
             SetSetting(section, setting, value.ToString());
-        }
-
-        #endregion
-
-        #region Boolean parsing
-
-        private static Dictionary<string, bool> BoolStringLookup = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["true"] = true,
-            ["false"] = false,
-            ["yes"] = true,
-            ["no"] = false,
-            ["on"] = true,
-            ["off"] = false,
-            ["1"] = true,
-            ["0"] = false,
-        };
-
-        private bool BooleanTryParse(string s, out bool value)
-        {
-            if (s != null)
-            {
-                if (BoolStringLookup.TryGetValue(s, out bool b))
-                {
-                    value = b;
-                    return true;
-                }
-                if (int.TryParse(s, out int i))
-                {
-                    // Non-zero integer = true; Zero = false
-                    value = (i != 0);
-                    return true;
-                }
-            }
-            value = false;
-            return false;
         }
 
         #endregion
