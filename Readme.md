@@ -40,6 +40,10 @@ bool b1 = file.GetSetting(IniFile.DefaultSectionName, "Boolean1", false));
 bool b2 = file.GetSetting(IniFile.DefaultSectionName, "Boolean2", true));
 ```
 
+#### Comments and Empty Lines
+
+Any line with a semicolon (;) as the first non-space character is assumed to be a comment and is ignored by the parser. Empty lines are also ignored.
+
 #### Customizing Boolean Handling
 
 By default, the `bool` version of the `GetSetting()` method understands the words "true", "false", "yes", "no", "on", "off", "1" and "0", and will convert those words to the corresponding `bool` value. The comparision is not case-sensitive. In addition, any string value that can be interpreted as an integer value will considered `True` if that integer value is non-zero, or `False` if that integer value is zero. However, you can override these settings by passing an instance of `BoolOptions` to the `IniFile` constructor.
