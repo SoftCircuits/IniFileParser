@@ -6,30 +6,6 @@ using System.Collections.Generic;
 
 namespace SoftCircuits.IniFileParser
 {
-    public class BoolWord
-    {
-        /// <summary>
-        /// Specifies a word that can be interpreted as a Boolean value.
-        /// </summary>
-        public string Word { get; set; }
-
-        /// <summary>
-        /// Specifies the Boolean value of the associated word.
-        /// </summary>
-        public bool Value { get; set; }
-
-        /// <summary>
-        /// Initializes an instance of BoolWord.
-        /// </summary>
-        /// <param name="word">A word that can be interpreted as a Boolean value.</param>
-        /// <param name="value">The Boolean value of the associated word.</param>
-        public BoolWord(string word, bool value)
-        {
-            Word = word;
-            Value = value;
-        }
-    }
-
     /// <summary>
     /// Options for reading Boolean setting values
     /// </summary>
@@ -42,6 +18,8 @@ namespace SoftCircuits.IniFileParser
         public bool NonZeroNumbersAreTrue { get; set; }
 
         private readonly Dictionary<string, bool> BoolStringLookup;
+        private string TrueString = "true";
+        private string FalseString = "false";
 
         /// <summary>
         /// Initializes a <c>BoolOptions</c> instance.
@@ -53,8 +31,8 @@ namespace SoftCircuits.IniFileParser
             NonZeroNumbersAreTrue = true;
             BoolStringLookup = new Dictionary<string, bool>(comparer ?? StringComparer.CurrentCultureIgnoreCase)
             {
-                ["true"] = true,
-                ["false"] = false,
+                [TrueString] = true,
+                [FalseString] = false,
                 ["yes"] = true,
                 ["no"] = false,
                 ["on"] = true,
@@ -71,10 +49,15 @@ namespace SoftCircuits.IniFileParser
         /// <param name="words">List of Boolean words and their corresponding value.</param>
         public void SetBoolWords(IEnumerable<BoolWord> words)
         {
+            BoolWord.GetTrueFalseWords(words, out string trueString, out string falseString);
+            TrueString = trueString;
+            FalseString = falseString;
             BoolStringLookup.Clear();
             foreach (BoolWord word in words)
                 BoolStringLookup.Add(word.Word, word.Value);
         }
+
+        internal string ToString(bool value) => value ? TrueString : FalseString;
 
         internal bool TryParse(string s, out bool value)
         {

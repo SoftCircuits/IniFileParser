@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace TestIniParser
 {
@@ -126,6 +127,51 @@ namespace TestIniParser
                     Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, false));
             }
         }
+
+        [TestMethod]
+        public void TestWhitespace()
+        {
+            StringBuilder builder = new StringBuilder();
+            Random rand = new Random();
+
+            builder.AppendLine("  ;  Comment");
+            builder.AppendLine("  ;  Comment");
+            builder.AppendLine("  ;  Comment");
+
+            foreach (string section in Sections)
+            {
+                builder.AppendLine();
+                string spaces = Spaces(rand);
+                builder.AppendLine($"{spaces}[{spaces}{section}{spaces}{spaces}]{spaces}");
+                foreach ((string Name, string Value) nameValue in StringValues)
+                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
+                foreach ((string Name, int Value) nameValue in IntValues)
+                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
+                foreach ((string Name, double Value) nameValue in DoubleValues)
+                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
+                foreach ((string Name, bool Value) nameValue in BoolValues)
+                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
+            }
+            byte[] buffer = SaveToBytes(builder.ToString());
+
+            IniFile file = new IniFile();
+            LoadFromBytes(file, buffer);
+            Assert.AreEqual(Sections.Length, file.GetSections().Count());
+            foreach (string section in Sections)
+            {
+                Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
+                foreach ((string Name, string Value) nameValue in StringValues)
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, string.Empty));
+                foreach ((string Name, int Value) nameValue in IntValues)
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0));
+                foreach ((string Name, double Value) nameValue in DoubleValues)
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0.0));
+                foreach ((string Name, bool Value) nameValue in BoolValues)
+                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, false));
+            }
+        }
+
+        private string Spaces(Random rand) => new string(' ', rand.Next(5));
 
         [TestMethod]
         public void TestStringComparer()
@@ -255,6 +301,8 @@ namespace TestIniParser
         [TestMethod]
         public void TestBoolOptions()
         {
+            string stringSection = "StringSection";
+            string boolSection = "BooleanSection";
             BoolOptions options = new BoolOptions(StringComparer.Ordinal);
             options.SetBoolWords(new[] {
                 new BoolWord("vraie", true),
@@ -267,9 +315,12 @@ namespace TestIniParser
             options.NonZeroNumbersAreTrue = false;
 
             IniFile file = new IniFile(null, options);
+            // Write as string values
             foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
-                file.SetSetting(IniFile.DefaultSectionName, value.Setting, value.Word);
-
+                file.SetSetting(stringSection, value.Setting, value.Word);
+            // Write as bool values
+            foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
+                file.SetSetting(boolSection, value.Setting, value.Value);
             byte[] buffer = SaveToBytes(file);
 
             file.Clear();
@@ -278,11 +329,17 @@ namespace TestIniParser
 
             foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
             {
-                bool result = file.GetSetting(IniFile.DefaultSectionName, value.Setting, !value.Value);
+                bool result = file.GetSetting(stringSection, value.Setting, !value.Value);
                 if (value.CanRead)
                     Assert.AreEqual(value.Value, result);
                 else
                     Assert.AreEqual(!value.Value, result);
+            }
+
+            foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
+            {
+                bool result = file.GetSetting(boolSection, value.Setting, !value.Value);
+                Assert.AreEqual(value.Value, result);
             }
         }
 
@@ -292,6 +349,17 @@ namespace TestIniParser
             using (StreamWriter writer = new StreamWriter(stream))
             {
                 file.Save(writer);
+                writer.Flush();
+                return stream.ToArray();
+            }
+        }
+
+        private byte[] SaveToBytes(string contents)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            using (StreamWriter writer = new StreamWriter(stream))
+            {
+                writer.Write(contents);
                 writer.Flush();
                 return stream.ToArray();
             }
