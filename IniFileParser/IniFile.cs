@@ -20,6 +20,12 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public const string DefaultSectionName = "General";
 
+        /// <summary>
+        /// Character used to signify a comment. Must be the first non-space
+        /// character on the line.
+        /// </summary>
+        public char CommentCharacter { get; set; } = ';';
+
         private readonly StringComparer StringComparer;
         private readonly BoolOptions BoolOptions;
         private readonly Dictionary<string, IniSection> Sections;
@@ -44,6 +50,9 @@ namespace SoftCircuits.IniFileParser
         /// <param name="path">Path of file to load.</param>
         public void Load(string path)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
             using (StreamReader reader = new StreamReader(path))
             {
                 Load(reader);
@@ -58,6 +67,9 @@ namespace SoftCircuits.IniFileParser
         /// beginning of the file.</param>
         public void Load(string path, bool detectEncodingFromByteOrderMarks)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
             using (StreamReader reader = new StreamReader(path, detectEncodingFromByteOrderMarks))
             {
                 Load(reader);
@@ -71,6 +83,9 @@ namespace SoftCircuits.IniFileParser
         /// <param name="encoding">The character encoding to use.</param>
         public void Load(string path, Encoding encoding)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
             using (StreamReader reader = new StreamReader(path, encoding))
             {
                 Load(reader);
@@ -86,6 +101,9 @@ namespace SoftCircuits.IniFileParser
         /// beginning of the file.</param>
         public void Load(string path, Encoding encoding, bool detectEncodingFromByteOrderMarks)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
             using (StreamReader reader = new StreamReader(path, encoding, detectEncodingFromByteOrderMarks))
             {
                 Load(reader);
@@ -100,6 +118,9 @@ namespace SoftCircuits.IniFileParser
         {
             // Tracks the current section
             IniSection section = null;
+
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
 
             // Clear any existing data
             Sections.Clear();
@@ -118,7 +139,7 @@ namespace SoftCircuits.IniFileParser
                 // Process line
                 if (start < line.Length)
                 {
-                    if (line[start] == ';')
+                    if (line[start] == CommentCharacter)
                     {
                         // Ignore comments
                     }
@@ -190,6 +211,9 @@ namespace SoftCircuits.IniFileParser
         /// <param name="path">Path of the file to write to.</param>
         public void Save(string path)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
             using (StreamWriter writer = new StreamWriter(path, false))
             {
                 Save(writer);
@@ -204,6 +228,9 @@ namespace SoftCircuits.IniFileParser
         /// <param name="encoding">The character encoding to use.</param>
         public void Save(string path, Encoding encoding)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
             using (StreamWriter writer = new StreamWriter(path, false, encoding))
             {
                 Save(writer);
@@ -217,6 +244,9 @@ namespace SoftCircuits.IniFileParser
         /// <param name="filename">Path of file to write to.</param>
         public void Save(StreamWriter writer)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+
             bool firstLine = true;
             foreach (IniSection section in Sections.Values)
             {
@@ -320,6 +350,9 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the settings in the given INI section.</returns>
         public IEnumerable<IniSetting> GetSectionSettings(string section)
         {
+            if (section == null)
+                throw new ArgumentNullException(nameof(section));
+
             return (Sections.TryGetValue(section, out IniSection iniSection)) ?
                 iniSection.Values :
                 Enumerable.Empty<IniSetting>();

@@ -276,6 +276,43 @@ namespace TestIniParser
             }
         }
 
+        [TestMethod]
+        public void TestCommentCharacter()
+        {
+            List<(char c, string[] keys)> comments = new List<(char, string[])>
+            {
+                ('\0', new [] { "a", "#c", "@d" }),
+                (';', new [] { "a", "#c", "@d" }),
+                ('#', new [] { "a", ";b", "@d" }),
+                ('@', new [] { "a", ";b", "#c" }),
+            };
+
+            string contents = @"[General]
+a=0
+;b=1
+#c=2
+@d=3
+";
+            byte[] contentBytes = SaveToBytes(contents);
+
+            foreach (var comment in comments)
+            {
+                IniFile file = new IniFile();
+
+                if (comment.c != '\0')
+                    file.CommentCharacter = comment.c;
+
+                LoadFromBytes(file, contentBytes);
+                var settings = file.GetSectionSettings(IniFile.DefaultSectionName);
+
+                CollectionAssert.AreEqual(comment.keys, settings.Select(s => s.Name).ToList());
+
+
+                //int value = file.GetSetting(IniFile.DefaultSectionName, "x", 0);
+                //Assert.AreEqual(comment.value, value);
+            }
+        }
+
         private static readonly List<(string Setting, string Word, bool Value, bool CanRead)> BoolOptionData = new List<(string Setting, string Word, bool Value, bool CanRead)>
         {
             ("Setting1", "vraie", true, true),
