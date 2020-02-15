@@ -17,16 +17,22 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <PackageProjectUrl>https://github.com/SoftCircuits/IniFileParser</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SoftCircuits/IniFileParser</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>ini ini-file inifile parser ini-parser</PackageTags>
+    <PackageTags>ini ini-file inifile parser ini-parser parse parsing</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>1.0.7</Version>
-    <AssemblyVersion>1.0.7.0</AssemblyVersion>
-    <PackageReleaseNotes>Added public CommentCharacter property to allow changing of comment characters; minor tweaks</PackageReleaseNotes>
-    <FileVersion>1.0.7.0</FileVersion>
+    <Version>1.0.8</Version>
+    <AssemblyVersion>1.0.8.0</AssemblyVersion>
+    <PackageReleaseNotes>Minor tweaks; added icon.</PackageReleaseNotes>
+    <FileVersion>1.0.8.0</FileVersion>
+    <PackageIcon>Logo_64x64.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\License.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\Logo_64x64.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

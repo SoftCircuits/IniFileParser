@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -15,6 +15,10 @@ namespace SoftCircuits.IniFileParser
     /// </summary>
     public class IniFile
     {
+        private readonly StringComparer StringComparer;
+        private readonly BoolOptions BoolOptions;
+        private readonly Dictionary<string, IniSection> Sections;
+
         /// <summary>
         /// Section used when reading settings not under any section.
         /// </summary>
@@ -25,10 +29,6 @@ namespace SoftCircuits.IniFileParser
         /// character on the line.
         /// </summary>
         public char CommentCharacter { get; set; } = ';';
-
-        private readonly StringComparer StringComparer;
-        private readonly BoolOptions BoolOptions;
-        private readonly Dictionary<string, IniSection> Sections;
 
         /// <summary>
         /// Initializes a new IniFile instance.

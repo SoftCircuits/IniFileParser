@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -42,12 +42,12 @@ namespace SoftCircuits.IniFileParser
             // Find 'true' word
             boolWord = words.FirstOrDefault(w => w.Value == true);
             if (boolWord == null)
-                throw new Exception("Word list contains no words for 'true' values.");
+                throw new InvalidOperationException("Boolean word list contains no entry for 'true' values.");
             trueString = boolWord.Word;
             // Find 'false' word
             boolWord = words.FirstOrDefault(w => w.Value == false);
             if (boolWord == null)
-                throw new Exception("Word list contains no words for 'false' values.");
+                throw new InvalidOperationException("Boolean word list contains no entry for 'false' values.");
             falseString = boolWord.Word;
         }
     }
