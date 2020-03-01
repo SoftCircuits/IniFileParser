@@ -3,6 +3,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SoftCircuits.IniFileParser
 {
@@ -17,7 +18,7 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public bool NonZeroNumbersAreTrue { get; set; }
 
-        private readonly Dictionary<string, bool> BoolStringLookup;
+        private Dictionary<string, bool> BoolStringLookup;
         private string TrueString = "true";
         private string FalseString = "false";
 
@@ -49,16 +50,28 @@ namespace SoftCircuits.IniFileParser
         /// <param name="words">List of Boolean words and their corresponding value.</param>
         public void SetBoolWords(IEnumerable<BoolWord> words)
         {
-            BoolWord.GetTrueFalseWords(words, out string trueString, out string falseString);
-            TrueString = trueString;
-            FalseString = falseString;
-            BoolStringLookup.Clear();
-            foreach (BoolWord word in words)
-                BoolStringLookup.Add(word.Word, word.Value);
+            // Get default true word
+            BoolWord word = words.FirstOrDefault(w => w.Value == true);
+            if (word == null)
+                throw new InvalidOperationException("Boolean word list contains no entry for 'true' values.");
+            TrueString = word.Word;
+            // Get default false word
+            word = words.FirstOrDefault(w => w.Value == false);
+            if (word == null)
+                throw new InvalidOperationException("Boolean word list contains no entry for 'false' values.");
+            FalseString = word.Word;
+            // Store words in lookup table
+            BoolStringLookup = words.ToDictionary(w => w.Word, w => w.Value);
         }
 
+        /// <summary>
+        /// Converts the boolean value to a string.
+        /// </summary>
         internal string ToString(bool value) => value ? TrueString : FalseString;
 
+        /// <summary>
+        /// Converts the string to a bool value.
+        /// </summary>
         internal bool TryParse(string s, out bool value)
         {
             if (s != null)

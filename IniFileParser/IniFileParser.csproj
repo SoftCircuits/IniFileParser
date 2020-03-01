@@ -7,7 +7,7 @@
     <PackageId>SoftCircuits.IniFileParser</PackageId>
     <Authors>Jonathan Wood</Authors>
     <Company>SoftCircuits</Company>
-    <Copyright>Copyright © 2019 - 2020 SoftCircuits</Copyright>
+    <Copyright>Copyright © 2019-2020 SoftCircuits</Copyright>
     <Description>Lightweight .NET INI-file parser that can easily read and write INI files. It provides direct support for string, int, double and bool setting types.
 
 In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
@@ -19,10 +19,10 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser ini-parser parse parsing</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>1.0.8</Version>
-    <AssemblyVersion>1.0.8.0</AssemblyVersion>
-    <PackageReleaseNotes>Minor tweaks; added icon.</PackageReleaseNotes>
-    <FileVersion>1.0.8.0</FileVersion>
+    <Version>1.0.9</Version>
+    <AssemblyVersion>1.0.9.0</AssemblyVersion>
+    <PackageReleaseNotes>1.0.9; Code review/minor tweaks; Improved XML comments; Reworked unit tests; modified icon.</PackageReleaseNotes>
+    <FileVersion>1.0.9.0</FileVersion>
     <PackageIcon>Logo_64x64.png</PackageIcon>
     <PackageIconUrl />
   </PropertyGroup>

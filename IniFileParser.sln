@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IniFileParser", "IniFileParser\IniFileParser.csproj", "{38863E23-79F3-4FED-A683-D8023786A7AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IniFileParser", "IniFileParser\IniFileParser.csproj", "{38863E23-79F3-4FED-A683-D8023786A7AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestIniParser", "TestIniParser\TestIniParser.csproj", "{AD7358A4-C0F1-4D77-8818-C2B2570243A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IniParser.Tests", "IniParser.Tests\IniParser.Tests.csproj", "{23D47AC4-5417-47DE-9E2B-0008AFB3B009}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{38863E23-79F3-4FED-A683-D8023786A7AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38863E23-79F3-4FED-A683-D8023786A7AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38863E23-79F3-4FED-A683-D8023786A7AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD7358A4-C0F1-4D77-8818-C2B2570243A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD7358A4-C0F1-4D77-8818-C2B2570243A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD7358A4-C0F1-4D77-8818-C2B2570243A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD7358A4-C0F1-4D77-8818-C2B2570243A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23D47AC4-5417-47DE-9E2B-0008AFB3B009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23D47AC4-5417-47DE-9E2B-0008AFB3B009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23D47AC4-5417-47DE-9E2B-0008AFB3B009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23D47AC4-5417-47DE-9E2B-0008AFB3B009}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
+
 namespace SoftCircuits.IniFileParser
 {
     /// <summary>
@@ -18,6 +19,9 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public string Value { get; set; }
 
+        /// <summary>
+        /// Overrides <see cref="ToString"></see>. Used to write the setting line to file.
+        /// </summary>
         public override string ToString() => $"{Name ?? "(null)"}={Value ?? string.Empty}";
     }
 }

@@ -11,16 +11,16 @@ using System.Text;
 namespace SoftCircuits.IniFileParser
 {
     /// <summary>
-    /// Class to create and read INI files.
+    /// Class to read and write INI files.
     /// </summary>
     public class IniFile
     {
+        private readonly Dictionary<string, IniSection> Sections;
         private readonly StringComparer StringComparer;
         private readonly BoolOptions BoolOptions;
-        private readonly Dictionary<string, IniSection> Sections;
 
         /// <summary>
-        /// Section used when reading settings not under any section.
+        /// Default section name. Used if settings found without section header.
         /// </summary>
         public const string DefaultSectionName = "General";
 
@@ -33,9 +33,9 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Initializes a new IniFile instance.
         /// </summary>
-        /// <param name="comparer"><c>StringComparer</c> used to compare section and setting names.
-        /// If not specified, <c>StringComparer.CurrentCultureIgnoreCase</c> is used (i.e. names
-        /// are not case-sensitive).</param>
+        /// <param name="comparer"><see cref="StringComparer"></see> used to compare section and setting
+        /// names. If not specified, <see cref="StringComparer.CurrentCultureIgnoreCase"></see> is used
+        /// (i.e. names are not case-sensitive).</param>
         /// <param name="boolOptions">Optional settings for interpreting <c>bool</c> values.</param>
         public IniFile(StringComparer comparer = null, BoolOptions boolOptions = null)
         {
@@ -45,9 +45,9 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Clears any existing settings and loads the settings from an INI file.
+        /// Loads settings from the specified INI file. Clears any existing settings.
         /// </summary>
-        /// <param name="path">Path of file to load.</param>
+        /// <param name="path">Path of the INI file to load.</param>
         public void Load(string path)
         {
             if (path == null)
@@ -60,9 +60,9 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Clears any existing settings and loads the settings from an INI file.
+        /// Loads settings from the specified INI file. Clears any existing settings.
         /// </summary>
-        /// <param name="path">Path of file to load.</param>
+        /// <param name="path">Path of the INI file to load.</param>
         /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
         /// beginning of the file.</param>
         public void Load(string path, bool detectEncodingFromByteOrderMarks)
@@ -77,9 +77,9 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Clears any existing settings and loads the settings from an INI file.
+        /// Loads settings from the specified INI file. Clears any existing settings.
         /// </summary>
-        /// <param name="path">Path of file to load.</param>
+        /// <param name="path">Path of the INI file to load.</param>
         /// <param name="encoding">The character encoding to use.</param>
         public void Load(string path, Encoding encoding)
         {
@@ -93,9 +93,9 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Clears any existing settings and loads the settings from an INI file.
+        /// Loads settings from the specified INI file. Clears any existing settings.
         /// </summary>
-        /// <param name="path">Path of file to load.</param>
+        /// <param name="path">Path of the INI file to load.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
         /// beginning of the file.</param>
@@ -111,9 +111,9 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Clears any existing settings and loads the settings from an INI file.
+        /// Loads settings from the specified INI file. Clears any existing settings.
         /// </summary>
-        /// <param name="reader">The <c>StreamReader</c> to load the settings from.</param>
+        /// <param name="reader">The <see cref="StreamReader"></see> to load the settings from.</param>
         public void Load(StreamReader reader)
         {
             // Tracks the current section
@@ -153,6 +153,7 @@ namespace SoftCircuits.IniFileParser
                         string name = line.Substring(start, pos - start).Trim();
                         if (name.Length > 0)
                         {
+                            // Add section if it doesn't already exist
                             if (!Sections.TryGetValue(name, out section))
                             {
                                 section = new IniSection(name, StringComparer);
@@ -179,6 +180,7 @@ namespace SoftCircuits.IniFileParser
 
                         if (name.Length > 0)
                         {
+                            // Ensure we have a section
                             if (section == null)
                             {
                                 section = new IniSection(DefaultSectionName, StringComparer);
@@ -208,7 +210,7 @@ namespace SoftCircuits.IniFileParser
         /// Saves the current settings to an INI file. If the file already exists, it is
         /// overwritten.
         /// </summary>
-        /// <param name="path">Path of the file to write to.</param>
+        /// <param name="path">Path of the INI file to write to.</param>
         public void Save(string path)
         {
             if (path == null)
@@ -224,7 +226,7 @@ namespace SoftCircuits.IniFileParser
         /// Saves the current settings to an INI file. If the file already exists, it is
         /// overwritten.
         /// </summary>
-        /// <param name="path">Path of the file to write to.</param>
+        /// <param name="path">Path of the INI file to write to.</param>
         /// <param name="encoding">The character encoding to use.</param>
         public void Save(string path, Encoding encoding)
         {
@@ -241,7 +243,8 @@ namespace SoftCircuits.IniFileParser
         /// Writes the current settings to an INI file. If the file already exists, it is
         /// overwritten.
         /// </summary>
-        /// <param name="filename">Path of file to write to.</param>
+        /// <param name="writer"><see cref="StreamWriter"></see> to save the settings
+        /// to.</param>
         public void Save(StreamWriter writer)
         {
             if (writer == null)
@@ -258,12 +261,9 @@ namespace SoftCircuits.IniFileParser
                     else
                         writer.WriteLine();
 
-                    writer.WriteLine("[{0}]", section.Name);
+                    writer.WriteLine($"[{section.Name}]");
                     foreach (IniSetting setting in section.Values)
-                    {
-                        Debug.Assert(!string.IsNullOrWhiteSpace(setting.Name));
                         writer.WriteLine(setting.ToString());
-                    }
                 }
             }
         }
@@ -273,7 +273,7 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Returns the value of an INI setting.
         /// </summary>
-        /// <param name="section">The INI file section.</param>
+        /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found.</param>
         /// <returns>Returns the specified setting value.</returns>
@@ -295,46 +295,46 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Returns the value of an INI setting as an integer value.
         /// </summary>
-        /// <param name="section">The INI file section.</param>
+        /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a integer value.</param>
         /// <returns>Returns the specified setting value as an integer value.</returns>
         public int GetSetting(string section, string setting, int defaultValue)
         {
-            if (int.TryParse(GetSetting(section, setting), out int value))
-                return value;
-            return defaultValue;
+            return int.TryParse(GetSetting(section, setting), out int value) ?
+                value :
+                defaultValue;
         }
 
         /// <summary>
         /// Returns the value of an INI setting as a double value.
         /// </summary>
-        /// <param name="section">The INI file section.</param>
+        /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a double value.</param>
         /// <returns>Returns the specified setting value as a double value.</returns>
         public double GetSetting(string section, string setting, double defaultValue)
         {
-            if (double.TryParse(GetSetting(section, setting), out double value))
-                return value;
-            return defaultValue;
+            return double.TryParse(GetSetting(section, setting), out double value) ?
+                value :
+                defaultValue;
         }
 
         /// <summary>
         /// Returns the value of an INI setting as a Boolean value.
         /// </summary>
-        /// <param name="section">The INI file section.</param>
+        /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a Boolean value.</param>
         /// <returns>Returns the specified setting value as a Boolean.</returns>
         public bool GetSetting(string section, string setting, bool defaultValue)
         {
-            if (BoolOptions.TryParse(GetSetting(section, setting), out bool value))
-                return value;
-            return defaultValue;
+            return BoolOptions.TryParse(GetSetting(section, setting), out bool value) ?
+                value :
+                defaultValue;
         }
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Returns all settings in the given INI section.
         /// </summary>
-        /// <param name="section">The section that contains the settings to be retrieved.</param>
+        /// <param name="section">The name of the section that contains the settings to be retrieved.</param>
         /// <returns>Returns the settings in the given INI section.</returns>
         public IEnumerable<IniSetting> GetSectionSettings(string section)
         {
@@ -366,9 +366,9 @@ namespace SoftCircuits.IniFileParser
         /// Sets an INI file setting. The setting is not written to disk until
         /// <see cref="Save"/> is called.
         /// </summary>
-        /// <param name="section">The INI-file section.</param>
-        /// <param name="setting">The name of the INI-file setting.</param>
-        /// <param name="value">The value of the INI-file setting</param>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The name of the INI file setting.</param>
+        /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, string value)
         {
             if (section == null)
@@ -376,25 +376,28 @@ namespace SoftCircuits.IniFileParser
             if (setting == null)
                 throw new ArgumentNullException(nameof(setting));
 
+            // Add section if needed
             if (!Sections.TryGetValue(section, out IniSection iniSection))
             {
                 iniSection = new IniSection(section, StringComparer);
                 Sections.Add(iniSection.Name, iniSection);
             }
+            // Add setting if needed
             if (!iniSection.TryGetValue(setting, out IniSetting iniSetting))
             {
                 iniSetting = new IniSetting { Name = setting };
                 iniSection.Add(iniSetting.Name, iniSetting);
             }
+            // Set setting value
             iniSetting.Value = value;
         }
 
         /// <summary>
         /// Sets an INI file setting with an integer value.
         /// </summary>
-        /// <param name="section">The INI-file section.</param>
-        /// <param name="setting">The name of the INI-file setting.</param>
-        /// <param name="value">The value of the INI-file setting</param>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The name of the INI file setting.</param>
+        /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, int value)
         {
             SetSetting(section, setting, value.ToString());
@@ -403,9 +406,9 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Sets an INI file setting with a double value.
         /// </summary>
-        /// <param name="section">The INI-file section.</param>
-        /// <param name="setting">The name of the INI-file setting.</param>
-        /// <param name="value">The value of the INI-file setting</param>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The name of the INI file setting.</param>
+        /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, double value)
         {
             SetSetting(section, setting, value.ToString());
@@ -414,9 +417,9 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Sets an INI file setting with a Boolean value.
         /// </summary>
-        /// <param name="section">The INI-file section.</param>
-        /// <param name="setting">The name of the INI-file setting.</param>
-        /// <param name="value">The value of the INI-file setting</param>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The name of the INI file setting.</param>
+        /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, bool value)
         {
             SetSetting(section, setting, BoolOptions.ToString(value));

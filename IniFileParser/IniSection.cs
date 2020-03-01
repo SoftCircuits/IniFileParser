@@ -7,12 +7,21 @@ using System.Collections.Generic;
 namespace SoftCircuits.IniFileParser
 {
     /// <summary>
-    /// Represents an entire INI file section.
+    /// Represents an INI file section.
     /// </summary>
     internal class IniSection : Dictionary<string, IniSetting>
     {
-        public string Name { get; set; }
+        /// <summary>
+        /// The name of this INI section.
+        /// </summary>
+        public string Name { get; private set; }
 
+        /// <summary>
+        /// Constructs a new IniSection instance.
+        /// </summary>
+        /// <param name="name">Name of this INI section.</param>
+        /// <param name="comparer">Comparer to use when looking up setting
+        /// names.</param>
         public IniSection(string name, StringComparer comparer)
             : base(comparer)
         {

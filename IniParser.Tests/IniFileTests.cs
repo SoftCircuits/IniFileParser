@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace TestIniParser
+namespace IniParser.Tests
 {
     [TestClass]
     public class IniFileTests
@@ -98,14 +98,14 @@ namespace TestIniParser
             IniFile file = new IniFile();
             foreach (string section in Sections)
             {
-                foreach ((string Name, string Value) nameValue in StringValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, int Value) nameValue in IntValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, double Value) nameValue in DoubleValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, bool Value) nameValue in BoolValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
+                foreach ((string Name, string Value) in StringValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, int Value) in IntValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, double Value) in DoubleValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, bool Value) in BoolValues)
+                    file.SetSetting(section, Name, Value);
             }
             byte[] buffer = SaveToBytes(file);
 
@@ -117,14 +117,14 @@ namespace TestIniParser
             foreach (string section in Sections)
             {
                 Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
-                foreach ((string Name, string Value) nameValue in StringValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, string.Empty));
-                foreach ((string Name, int Value) nameValue in IntValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0));
-                foreach ((string Name, double Value) nameValue in DoubleValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0.0));
-                foreach ((string Name, bool Value) nameValue in BoolValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, false));
+                foreach ((string Name, string Value) in StringValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, string.Empty));
+                foreach ((string Name, int Value) in IntValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, 0));
+                foreach ((string Name, double Value) in DoubleValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, 0.0));
+                foreach ((string Name, bool Value) in BoolValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, false));
             }
         }
 
@@ -143,14 +143,14 @@ namespace TestIniParser
                 builder.AppendLine();
                 string spaces = Spaces(rand);
                 builder.AppendLine($"{spaces}[{spaces}{section}{spaces}{spaces}]{spaces}");
-                foreach ((string Name, string Value) nameValue in StringValues)
-                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
-                foreach ((string Name, int Value) nameValue in IntValues)
-                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
-                foreach ((string Name, double Value) nameValue in DoubleValues)
-                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
-                foreach ((string Name, bool Value) nameValue in BoolValues)
-                    builder.AppendLine($"{spaces}{nameValue.Name}{spaces}={nameValue.Value}");
+                foreach ((string Name, string Value) in StringValues)
+                    builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
+                foreach ((string Name, int Value) in IntValues)
+                    builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
+                foreach ((string Name, double Value) in DoubleValues)
+                    builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
+                foreach ((string Name, bool Value) in BoolValues)
+                    builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
             }
             byte[] buffer = SaveToBytes(builder.ToString());
 
@@ -160,14 +160,14 @@ namespace TestIniParser
             foreach (string section in Sections)
             {
                 Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
-                foreach ((string Name, string Value) nameValue in StringValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, string.Empty));
-                foreach ((string Name, int Value) nameValue in IntValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0));
-                foreach ((string Name, double Value) nameValue in DoubleValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0.0));
-                foreach ((string Name, bool Value) nameValue in BoolValues)
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, false));
+                foreach ((string Name, string Value) in StringValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, string.Empty));
+                foreach ((string Name, int Value) in IntValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, 0));
+                foreach ((string Name, double Value) in DoubleValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, 0.0));
+                foreach ((string Name, bool Value) in BoolValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, false));
             }
         }
 
@@ -179,14 +179,14 @@ namespace TestIniParser
             IniFile file = new IniFile(StringComparer.Ordinal);
             foreach (string section in Sections)
             {
-                foreach ((string Name, string Value) nameValue in StringValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, int Value) nameValue in IntValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, double Value) nameValue in DoubleValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, bool Value) nameValue in BoolValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
+                foreach ((string Name, string Value) in StringValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, int Value) in IntValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, double Value) in DoubleValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, bool Value) in BoolValues)
+                    file.SetSetting(section, Name, Value);
             }
             byte[] buffer = SaveToBytes(file);
 
@@ -198,29 +198,29 @@ namespace TestIniParser
             foreach (string section in Sections)
             {
                 Assert.AreEqual(TotalItems, file.GetSectionSettings(section).Count());
-                foreach ((string Name, string Value) nameValue in StringValues)
+                foreach ((string Name, string Value) in StringValues)
                 {
-                    Assert.AreEqual(string.Empty, file.GetSetting(section, nameValue.Name.ToUpper(), string.Empty));
-                    Assert.AreEqual(string.Empty, file.GetSetting(section, nameValue.Name.ToLower(), string.Empty));
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, string.Empty));
+                    Assert.AreEqual(string.Empty, file.GetSetting(section, Name.ToUpper(), string.Empty));
+                    Assert.AreEqual(string.Empty, file.GetSetting(section, Name.ToLower(), string.Empty));
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, string.Empty));
                 }
-                foreach ((string Name, int Value) nameValue in IntValues)
+                foreach ((string Name, int Value) in IntValues)
                 {
-                    Assert.AreEqual(0, file.GetSetting(section, nameValue.Name.ToUpper(), 0));
-                    Assert.AreEqual(0, file.GetSetting(section, nameValue.Name.ToLower(), 0));
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0));
+                    Assert.AreEqual(0, file.GetSetting(section, Name.ToUpper(), 0));
+                    Assert.AreEqual(0, file.GetSetting(section, Name.ToLower(), 0));
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, 0));
                 }
-                foreach ((string Name, double Value) nameValue in DoubleValues)
+                foreach ((string Name, double Value) in DoubleValues)
                 {
-                    Assert.AreEqual(0.0, file.GetSetting(section, nameValue.Name.ToUpper(), 0.0));
-                    Assert.AreEqual(0.0, file.GetSetting(section, nameValue.Name.ToLower(), 0.0));
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, 0.0));
+                    Assert.AreEqual(0.0, file.GetSetting(section, Name.ToUpper(), 0.0));
+                    Assert.AreEqual(0.0, file.GetSetting(section, Name.ToLower(), 0.0));
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, 0.0));
                 }
-                foreach ((string Name, bool Value) nameValue in BoolValues)
+                foreach ((string Name, bool Value) in BoolValues)
                 {
-                    Assert.AreEqual(false, file.GetSetting(section, nameValue.Name.ToUpper(), false));
-                    Assert.AreEqual(false, file.GetSetting(section, nameValue.Name.ToLower(), false));
-                    Assert.AreEqual(nameValue.Value, file.GetSetting(section, nameValue.Name, false));
+                    Assert.AreEqual(false, file.GetSetting(section, Name.ToUpper(), false));
+                    Assert.AreEqual(false, file.GetSetting(section, Name.ToLower(), false));
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, false));
                 }
             }
         }
@@ -231,14 +231,14 @@ namespace TestIniParser
             IniFile file = new IniFile();
             foreach (string section in Sections)
             {
-                foreach ((string Name, string Value) nameValue in StringValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, int Value) nameValue in IntValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, double Value) nameValue in DoubleValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
-                foreach ((string Name, bool Value) nameValue in BoolValues)
-                    file.SetSetting(section, nameValue.Name, nameValue.Value);
+                foreach ((string Name, string Value) in StringValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, int Value) in IntValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, double Value) in DoubleValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, bool Value) in BoolValues)
+                    file.SetSetting(section, Name, Value);
             }
             byte[] buffer = SaveToBytes(file);
 
@@ -295,21 +295,15 @@ a=0
 ";
             byte[] contentBytes = SaveToBytes(contents);
 
-            foreach (var comment in comments)
+            foreach (var (c, keys) in comments)
             {
                 IniFile file = new IniFile();
 
-                if (comment.c != '\0')
-                    file.CommentCharacter = comment.c;
-
+                if (c != '\0')
+                    file.CommentCharacter = c;
                 LoadFromBytes(file, contentBytes);
                 var settings = file.GetSectionSettings(IniFile.DefaultSectionName);
-
-                CollectionAssert.AreEqual(comment.keys, settings.Select(s => s.Name).ToList());
-
-
-                //int value = file.GetSetting(IniFile.DefaultSectionName, "x", 0);
-                //Assert.AreEqual(comment.value, value);
+                CollectionAssert.AreEqual(keys, settings.Select(s => s.Name).ToList());
             }
         }
 
@@ -353,30 +347,30 @@ a=0
 
             IniFile file = new IniFile(null, options);
             // Write as string values
-            foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
-                file.SetSetting(stringSection, value.Setting, value.Word);
+            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
+                file.SetSetting(stringSection, Setting, Word);
             // Write as bool values
-            foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
-                file.SetSetting(boolSection, value.Setting, value.Value);
+            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
+                file.SetSetting(boolSection, Setting, Value);
             byte[] buffer = SaveToBytes(file);
 
             file.Clear();
             Assert.AreEqual(0, file.GetSections().Count());
             LoadFromBytes(file, buffer);
 
-            foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
+            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
             {
-                bool result = file.GetSetting(stringSection, value.Setting, !value.Value);
-                if (value.CanRead)
-                    Assert.AreEqual(value.Value, result);
+                bool result = file.GetSetting(stringSection, Setting, !Value);
+                if (CanRead)
+                    Assert.AreEqual(Value, result);
                 else
-                    Assert.AreEqual(!value.Value, result);
+                    Assert.AreEqual(!Value, result);
             }
 
-            foreach ((string Setting, string Word, bool Value, bool CanRead) value in BoolOptionData)
+            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
             {
-                bool result = file.GetSetting(boolSection, value.Setting, !value.Value);
-                Assert.AreEqual(value.Value, result);
+                bool result = file.GetSetting(boolSection, Setting, !Value);
+                Assert.AreEqual(Value, result);
             }
         }
 
