@@ -5,7 +5,7 @@
 namespace SoftCircuits.IniFileParser
 {
     /// <summary>
-    /// Represents one name/value pair in an INI file.
+    /// Represents the name/value pair of an INI-file setting.
     /// </summary>
     public class IniSetting
     {
@@ -20,8 +20,11 @@ namespace SoftCircuits.IniFileParser
         public string Value { get; set; }
 
         /// <summary>
-        /// Overrides <see cref="ToString"></see>. Used to write the setting line to file.
+        /// Converts this <see cref="IniSetting"></see> to a string.
         /// </summary>
-        public override string ToString() => $"{Name ?? "(null)"}={Value ?? string.Empty}";
+        /// <remarks>
+        /// This method is used to write each setting to the INI file.
+        /// </remarks>
+        public override string ToString() => $"{Name ?? string.Empty}={Value ?? string.Empty}";
     }
 }

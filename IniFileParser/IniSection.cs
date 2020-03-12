@@ -17,11 +17,11 @@ namespace SoftCircuits.IniFileParser
         public string Name { get; private set; }
 
         /// <summary>
-        /// Constructs a new IniSection instance.
+        /// Constructs a new <see cref="IniSection"></see> instance.
         /// </summary>
         /// <param name="name">Name of this INI section.</param>
-        /// <param name="comparer">Comparer to use when looking up setting
-        /// names.</param>
+        /// <param name="comparer"><see cref="StringComparer"></see> used to
+        /// look up setting names.</param>
         public IniSection(string name, StringComparer comparer)
             : base(comparer)
         {

@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SoftCircuits.IniFileParser
 {
@@ -20,7 +17,7 @@ namespace SoftCircuits.IniFileParser
         public bool Value { get; set; }
 
         /// <summary>
-        /// Initializes an instance of BoolWord.
+        /// Constructs a <see cref="BoolWord"></see> instance.
         /// </summary>
         /// <param name="word">A word that can be interpreted as a Boolean value.</param>
         /// <param name="value">The Boolean value of the associated word.</param>
