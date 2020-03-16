@@ -42,7 +42,7 @@ double rating = file.GetSetting(IniFile.DefaultSectionName, "Rating", 0.0));
 bool active = file.GetSetting(IniFile.DefaultSectionName, "Active", false));
 ```
 
-If any settings are found that are not under a section header, they will be available under the `IniFile.DefaultSectionName` section.
+If any settings are found that are not under a section header, they will be added to the `IniFile.DefaultSectionName` section.
 
 #### Reading All Sections in the File
 
