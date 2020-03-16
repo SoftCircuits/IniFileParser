@@ -8,7 +8,7 @@ Install-Package SoftCircuits.IniFileParser
 
 `IniFile` is a lightweight .NET class library that makes it easy to read and write INI files. It provide direct support for `string`, `int`, `double` and `bool` setting. It can return all of the sections in an INI file, and also return all the settings within a particular INI-file section.
 
-#### Write Example
+#### Writing Settings
 
 To write an INI file, create an instance of the `IniFile` class and call the `SetSetting()` method to set each setting. This method is overloaded to accept `string`, `int`, `double` and `bool` value types. Then call the `Save()` method to write the settings to a file.
 
@@ -24,7 +24,7 @@ file.SetSetting(IniFile.DefaultSectionName, "Active", true);
 file.Save(path);
 ```
 
-#### Read Example
+#### Reading Settings
 
 To read an INI file, create an instance of the `IniFile` class and call the `Load()` method to read the settings from a file. Then call the `GetSetting()` method to get each setting.
 
