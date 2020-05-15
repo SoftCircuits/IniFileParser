@@ -6,65 +6,83 @@
 Install-Package SoftCircuits.IniFileParser
 ```
 
-The `IniFile` class is a lightweight INI-file parser that can be used to easily read and write INI files. It includes direct support for `string`, `int`, `double` and `bool` setting types.
+`IniFile` is a lightweight .NET class library that makes it easy to read and write INI files. It provide direct support for `string`, `int`, `double` and `bool` setting. It can return all of the sections in an INI file, and also return all the settings within a particular INI-file section.
 
-In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
+#### Writing Settings
 
-The `SetSetting()` method is overloaded to accept different value types. The `GetSetting()` method is also overloaded to allow different `defaultValue` parameter types. The `defaultValue` parameter specifies the value to return if the setting was not found or could not be converted to the specified type. The `defaultValue` parameter type also indicates the return type.
-
-#### Write Example
+To write an INI file, create an instance of the `IniFile` class and call the `SetSetting()` method to set each setting. This method is overloaded to accept `string`, `int`, `double` and `bool` value types. Then call the `Save()` method to write the settings to a file.
 
 ```cs
 // Write values
 IniFile file = new IniFile();
 
-file.SetSetting(IniFile.DefaultSectionName, "String", "abc");
-file.SetSetting(IniFile.DefaultSectionName, "Integer", 123);
-file.SetSetting(IniFile.DefaultSectionName, "Double", 123.45);
-file.SetSetting(IniFile.DefaultSectionName, "Boolean1", true);
-file.SetSetting(IniFile.DefaultSectionName, "Boolean2", false);
+file.SetSetting(IniFile.DefaultSectionName, "Name", "Bob Smith");
+file.SetSetting(IniFile.DefaultSectionName, "Age", 34);
+file.SetSetting(IniFile.DefaultSectionName, "Rating", 123.45);
+file.SetSetting(IniFile.DefaultSectionName, "Active", true);
+
 file.Save(path);
 ```
 
-#### Read Example
+#### Reading Settings
+
+To read an INI file, create an instance of the `IniFile` class and call the `Load()` method to read the settings from a file. Then call the `GetSetting()` method to get each setting.
+
+The `GetSetting()` method accepts a default value parameter. The method returns the value of this parameter if the setting was not found or could not be converted to the specified type. The `GetSetting()` method is overloaded to accept default values of type `string`, `int`, `double` and `bool`. The default value parameter determines the return type.
 
 ```cs
 // Read values
 IniFile file = new IniFile();
 
 file.Load(path);
-string s = file.GetSetting(IniFile.DefaultSectionName, "String", string.Empty));
-int i = file.GetSetting(IniFile.DefaultSectionName, "Integer", 0));
-double d = file.GetSetting(IniFile.DefaultSectionName, "Double", 0.0));
-bool b1 = file.GetSetting(IniFile.DefaultSectionName, "Boolean1", false));
-bool b2 = file.GetSetting(IniFile.DefaultSectionName, "Boolean2", true));
+
+string name = file.GetSetting(IniFile.DefaultSectionName, "Name", string.Empty));
+int age = file.GetSetting(IniFile.DefaultSectionName, "Age", 0));
+double rating = file.GetSetting(IniFile.DefaultSectionName, "Rating", 0.0));
+bool active = file.GetSetting(IniFile.DefaultSectionName, "Active", false));
+```
+
+If any settings are found that are not under a section header, they will be added to the `IniFile.DefaultSectionName` section.
+
+#### Reading All Sections in the File
+
+Use the `GetSections()` method to retrieve all the sections in the file.
+
+```cs
+IEnumerable<string> sections = file.GetSections();
+```
+
+#### Reading All Settings in a Section
+
+Use the `GetSectionSettings()` method to retrieve all the settings in a section.
+
+```cs
+IEnumerable<IniSetting> settings = file.GetSectionSettings(IniFile.DefaultSectionName);
 ```
 
 #### Comments and Empty Lines
 
 Any line with a semicolon (;) as the first non-space character is assumed to be a comment and is ignored by the parser. Empty lines are also ignored.
 
-#### Customizing Boolean Handling
+#### Custom Boolean Handling
 
-By default, the `bool` version of the `GetSetting()` method understands the words "true", "false", "yes", "no", "on", "off", "1" and "0", and will convert those words to the corresponding `bool` value. The comparison is not case-sensitive. In addition, any string value that can be interpreted as an integer value will considered `True` if that integer value is non-zero, or `False` if that integer value is zero. However, you can override these settings by passing an instance of `BoolOptions` to the `IniFile` constructor.
+By default, the `bool` version of the `GetSetting()` method understands the words "true", "false", "yes", "no", "on", "off", "1" and "0", and will convert those words to the corresponding `bool` value. The comparison is not case-sensitive. In addition, any string value that can be interpreted as an integer value will considered `true` if that integer value is non-zero, or `false` if that integer value is zero.
 
-The following example creates an instance of the `BoolOptions` class, sets the string comparer to use when comparing Boolean words, replaces the default Boolean words with a new list, specifies that strings that can be interpreted as integers should be translated to `bool` values, and passes the object to the `IniFile` constructor.
+However, you can override these settings by passing an instance of the `BoolOptions` class to the `IniFile` constructor. The following example creates an instance of the `BoolOptions` class, sets the string comparer to use when comparing Boolean words, replaces the default Boolean words with a new list, specifies that strings that can be interpreted as integers should be translated to `bool` values, and passes the object to the `IniFile` constructor.
 
 ```cs
 BoolOptions options = new BoolOptions(StringComparer.CurrentCultureIgnoreCase);
 options.SetBoolWords(new[] {
-    new BoolWord("vraie", true),
-    new BoolWord("faux", false),
-    new BoolWord("oui", true),
-    new BoolWord("non", false),
-    new BoolWord("sur", true),
-    new BoolWord("de", false),
-    new BoolWord("1", true),
-    new BoolWord("0", false),
+    new BoolWord("sure", true),
+    new BoolWord("okay", true),
+    new BoolWord("yeppers", true),
+    new BoolWord("nope", false),
+    new BoolWord("nah", false),
+    new BoolWord("nopers", false),
 });
 options.NonZeroNumbersAreTrue = true;
 
 IniFile file = new IniFile(StringComparer.CurrentCultureIgnoreCase, options);
 ```
 
-**IMPORTANT:** The `SetBoolWords()` method will search the word list to find the first word with a `true` value and the first word with a `false` value, and these words will then be used by the `SetSetting()` method to write `bool` values. In the example above, any `bool` values would be written as "vraie" or "faux". Keep this in mind if you are writing INI files that may be read by other programs, as INI parsers expecting `bool` values to be "true" or "false" would be unable to correctly interpret such a file. If the list of words passed to `SetBoolWords()` does not include any words with a `true` value, or does not include any words with a `false` value, an exception is thrown.
+**NOTE:** The `SetBoolWords()` method will search the word list to find the first word with a `true` value and the first word with a `false` value, and these words will then be used by the `SetSetting()` method to write `bool` values. In the example above, any `bool` values would be written as "sure" or "nope". Keep this in mind if you are writing INI files that may be read by other programs, as INI parsers expecting `bool` values to be "true" or "false" would be unable to correctly interpret such a file. If the list of words passed to `SetBoolWords()` does not include any words with a `true` value, or does not include any words with a `false` value, an exception is thrown.
