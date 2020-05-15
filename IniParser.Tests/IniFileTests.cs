@@ -85,7 +85,7 @@ namespace IniParser.Tests
         };
 
         // Sum of all values lists
-        int TotalItems;
+        private readonly int TotalItems;
 
         public IniFileTests()
         {
@@ -171,7 +171,7 @@ namespace IniParser.Tests
             }
         }
 
-        private string Spaces(Random rand) => new string(' ', rand.Next(5));
+        private string Spaces(Random rand) => new string(' ', rand.Next(2, 14));
 
         [TestMethod]
         public void TestStringComparer()

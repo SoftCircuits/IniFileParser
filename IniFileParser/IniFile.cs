@@ -15,9 +15,9 @@ namespace SoftCircuits.IniFileParser
     /// </summary>
     public class IniFile
     {
+        private readonly Dictionary<string, IniSection> Sections;
         private readonly StringComparer StringComparer;
         private readonly BoolOptions BoolOptions;
-        private readonly Dictionary<string, IniSection> Sections;
 
         /// <summary>
         /// Default section name. Used for any settings found outside any section header.
@@ -25,10 +25,10 @@ namespace SoftCircuits.IniFileParser
         public const string DefaultSectionName = "General";
 
         /// <summary>
-        /// Character used to signify a comment. Must be the first non-space
-        /// character on the line. Default value is a semicolon (<c>;</c>).
+        /// Gets or sets the character used to signify a comment. Must be the first
+        /// non-space character on the line. Default value is a semicolon (<c>;</c>).
         /// </summary>
-        public char CommentCharacter { get; set; } = ';';
+        public char CommentCharacter { get; set; }
 
         /// <summary>
         /// Constructs a new <see cref="IniFile"></see> instance.
@@ -36,12 +36,13 @@ namespace SoftCircuits.IniFileParser
         /// <param name="comparer"><see cref="StringComparer"></see> used to compare section and setting
         /// names. If not specified, <see cref="StringComparer.CurrentCultureIgnoreCase"></see> is used
         /// (i.e. names are not case-sensitive).</param>
-        /// <param name="boolOptions">Optional settings for interpreting <c>bool</c> values.</param>
+        /// <param name="boolOptions">Options for interpreting <c>bool</c> values.</param>
         public IniFile(StringComparer comparer = null, BoolOptions boolOptions = null)
         {
+            Sections = new Dictionary<string, IniSection>(StringComparer);
             StringComparer = comparer ?? StringComparer.CurrentCultureIgnoreCase;
             BoolOptions = boolOptions ?? new BoolOptions();
-            Sections = new Dictionary<string, IniSection>(StringComparer);
+            CommentCharacter = ';';
         }
 
         /// <summary>
@@ -171,8 +172,8 @@ namespace SoftCircuits.IniFileParser
                         }
                         else
                         {
-                            name = line.Substring(0, pos).Trim();
-                            value = line.Substring(pos + 1);
+                            name = line.Substring(start, pos - start).Trim();
+                            value = line.Substring(pos + 1);    // Do not trim value
                         }
 
                         if (name.Length > 0)
