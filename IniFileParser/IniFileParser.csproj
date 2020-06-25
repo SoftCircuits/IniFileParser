@@ -25,7 +25,15 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <FileVersion>1.0.11.0</FileVersion>
     <PackageIcon>Logo_64x64.png</PackageIcon>
     <PackageIconUrl />
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <None Include="..\License.txt">
