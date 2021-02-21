@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 
@@ -12,12 +12,12 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// The name of this INI setting.
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// The value of this INI setting.
         /// </summary>
-        public string Value { get; set; }
+        public string? Value { get; set; }
 
         /// <summary>
         /// Converts this <see cref="IniSetting"></see> to a string.

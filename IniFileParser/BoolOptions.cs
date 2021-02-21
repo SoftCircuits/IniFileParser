@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -27,7 +27,7 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         /// <param name="comparer">Specifies the string comparer used to compare strings.
         /// If not supplied, <c>StringComparer.CurrentCultureIgnoreCase</c> is used.</param>
-        public BoolOptions(StringComparer comparer = null)
+        public BoolOptions(StringComparer? comparer = null)
         {
             BoolStringLookup = new Dictionary<string, bool>(comparer ?? StringComparer.CurrentCultureIgnoreCase)
             {
@@ -55,7 +55,7 @@ namespace SoftCircuits.IniFileParser
                 throw new ArgumentNullException(nameof(words));
 
             // Get default true word
-            BoolWord word = words.FirstOrDefault(w => w.Value == true);
+            BoolWord? word = words.FirstOrDefault(w => w.Value == true);
             if (word == null)
                 throw new InvalidOperationException("Boolean word list contains no entry for 'true' values.");
             TrueString = word.Word;
@@ -78,7 +78,7 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Converts a string to a Boolean value.
         /// </summary>
-        internal bool TryParse(string s, out bool value)
+        internal bool TryParse(string? s, out bool value)
         {
             if (s != null)
             {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2020 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -37,7 +37,7 @@ namespace SoftCircuits.IniFileParser
         /// names. If not specified, <see cref="StringComparer.CurrentCultureIgnoreCase"></see> is used
         /// (i.e. names are not case-sensitive).</param>
         /// <param name="boolOptions">Options for interpreting <c>bool</c> values.</param>
-        public IniFile(StringComparer comparer = null, BoolOptions boolOptions = null)
+        public IniFile(StringComparer? comparer = null, BoolOptions? boolOptions = null)
         {
             Sections = new Dictionary<string, IniSection>(StringComparer);
             StringComparer = comparer ?? StringComparer.CurrentCultureIgnoreCase;
@@ -121,12 +121,12 @@ namespace SoftCircuits.IniFileParser
                 throw new ArgumentNullException(nameof(reader));
 
             // Tracks the current section
-            IniSection section = null;
+            IniSection? section = null;
 
             // Clear any existing data
             Sections.Clear();
 
-            string line = reader.ReadLine();
+            string? line = reader.ReadLine();
             while (line != null)
             {
                 // Trim leading whitespace
@@ -172,8 +172,13 @@ namespace SoftCircuits.IniFileParser
                         }
                         else
                         {
+#if NETSTANDARD2_0
                             name = line.Substring(start, pos - start).Trim();
                             value = line.Substring(pos + 1);    // Do not trim value
+#else
+                            name = line[start..pos].Trim();
+                            value = line[(pos + 1)..];    // Do not trim value
+#endif
                         }
 
                         if (name.Length > 0)
@@ -185,7 +190,7 @@ namespace SoftCircuits.IniFileParser
                                 Sections.Add(section.Name, section);
                             }
 
-                            if (section.TryGetValue(name, out IniSetting setting))
+                            if (section.TryGetValue(name, out IniSetting? setting))
                             {
                                 // Override previously read value
                                 setting.Value = value;
@@ -266,7 +271,7 @@ namespace SoftCircuits.IniFileParser
             }
         }
 
-        #region Read values
+#region Read values
 
         /// <summary>
         /// Returns the value of an INI setting.
@@ -275,16 +280,16 @@ namespace SoftCircuits.IniFileParser
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found.</param>
         /// <returns>Returns the specified setting value.</returns>
-        public string GetSetting(string section, string setting, string defaultValue = null)
+        public string? GetSetting(string section, string setting, string? defaultValue = null)
         {
             if (section == null)
                 throw new ArgumentNullException(nameof(section));
             if (setting == null)
                 throw new ArgumentNullException(nameof(setting));
 
-            if (Sections.TryGetValue(section, out IniSection iniSection))
+            if (Sections.TryGetValue(section, out IniSection? iniSection))
             {
-                if (iniSection.TryGetValue(setting, out IniSetting iniSetting))
+                if (iniSection.TryGetValue(setting, out IniSetting? iniSetting))
                 {
                     Debug.Assert(iniSetting.Value != null);
                     return iniSetting.Value;
@@ -354,14 +359,14 @@ namespace SoftCircuits.IniFileParser
             if (section == null)
                 throw new ArgumentNullException(nameof(section));
 
-            return (Sections.TryGetValue(section, out IniSection iniSection)) ?
+            return (Sections.TryGetValue(section, out IniSection? iniSection)) ?
                 iniSection.Values :
                 Enumerable.Empty<IniSetting>();
         }
 
-        #endregion
+#endregion
 
-        #region Write values
+#region Write values
 
         /// <summary>
         /// Sets an INI file setting. The setting is not written to disk until
@@ -378,13 +383,13 @@ namespace SoftCircuits.IniFileParser
                 throw new ArgumentNullException(nameof(setting));
 
             // Add section if needed
-            if (!Sections.TryGetValue(section, out IniSection iniSection))
+            if (!Sections.TryGetValue(section, out IniSection? iniSection))
             {
                 iniSection = new IniSection(section, StringComparer);
                 Sections.Add(iniSection.Name, iniSection);
             }
             // Add setting if needed
-            if (!iniSection.TryGetValue(setting, out IniSetting iniSetting))
+            if (!iniSection.TryGetValue(setting, out IniSetting? iniSetting))
             {
                 iniSetting = new IniSetting { Name = setting };
                 iniSection.Add(iniSetting.Name, iniSetting);
@@ -417,7 +422,7 @@ namespace SoftCircuits.IniFileParser
         /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, bool value) => SetSetting(section, setting, BoolOptions.ToString(value));
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Clears all sections and settings.

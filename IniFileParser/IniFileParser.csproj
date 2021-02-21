@@ -1,13 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <Nullable>annotations</Nullable>
+    <Nullable Condition="'$(TargetFramework)' == 'net5.0'">enable</Nullable>
+    <LangVersion>9.0</LangVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>SoftCircuits.IniFileParser</PackageId>
     <Authors>Jonathan Wood</Authors>
     <Company>SoftCircuits</Company>
-    <Copyright>Copyright © 2019-2020 SoftCircuits</Copyright>
+    <Copyright>Copyright © 2019-2021 SoftCircuits</Copyright>
     <Description>Lightweight .NET INI-file parser that can easily read and write INI files. It provides direct support for string, int, double and bool setting types.
 
 In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
@@ -19,10 +22,10 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser ini-parser parse parsing</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>1.0.11</Version>
-    <AssemblyVersion>1.0.11.0</AssemblyVersion>
-    <PackageReleaseNotes>Code review/cleanup; Improved XML comments.</PackageReleaseNotes>
-    <FileVersion>1.0.11.0</FileVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <PackageReleaseNotes>Now targeting .NET Standard and .NET 5.0; Implemented Nullable for .NET 5.0; Code review and optimizations.</PackageReleaseNotes>
+    <FileVersion>2.0.0.0</FileVersion>
     <PackageIcon>Logo_64x64.png</PackageIcon>
     <PackageIconUrl />
   </PropertyGroup>
