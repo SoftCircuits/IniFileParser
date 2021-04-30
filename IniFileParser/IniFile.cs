@@ -30,6 +30,13 @@ namespace SoftCircuits.IniFileParser
         /// </summary>
         public char CommentCharacter { get; set; }
 
+
+        /// <summary>
+        /// Contains the list of comment lines read from a file, or that will be written
+        /// to a file.
+        /// </summary>
+        public List<string?> Comments { get; private set; }
+
         /// <summary>
         /// Constructs a new <see cref="IniFile"></see> instance.
         /// </summary>
@@ -42,6 +49,7 @@ namespace SoftCircuits.IniFileParser
             Sections = new Dictionary<string, IniSection>(StringComparer);
             StringComparer = comparer ?? StringComparer.CurrentCultureIgnoreCase;
             BoolOptions = boolOptions ?? new BoolOptions();
+            Comments = new();
             CommentCharacter = ';';
         }
 
@@ -54,10 +62,8 @@ namespace SoftCircuits.IniFileParser
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            using (StreamReader reader = new StreamReader(path))
-            {
-                Load(reader);
-            }
+            using StreamReader reader = new(path);
+            Load(reader);
         }
 
         /// <summary>
@@ -71,10 +77,8 @@ namespace SoftCircuits.IniFileParser
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            using (StreamReader reader = new StreamReader(path, detectEncodingFromByteOrderMarks))
-            {
-                Load(reader);
-            }
+            using StreamReader reader = new(path, detectEncodingFromByteOrderMarks);
+            Load(reader);
         }
 
         /// <summary>
@@ -87,10 +91,8 @@ namespace SoftCircuits.IniFileParser
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            using (StreamReader reader = new StreamReader(path, encoding))
-            {
-                Load(reader);
-            }
+            using StreamReader reader = new(path, encoding);
+            Load(reader);
         }
 
         /// <summary>
@@ -105,10 +107,8 @@ namespace SoftCircuits.IniFileParser
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            using (StreamReader reader = new StreamReader(path, encoding, detectEncodingFromByteOrderMarks))
-            {
-                Load(reader);
-            }
+            using StreamReader reader = new(path, encoding, detectEncodingFromByteOrderMarks);
+            Load(reader);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace SoftCircuits.IniFileParser
             IniSection? section = null;
 
             // Clear any existing data
-            Sections.Clear();
+            Clear();
 
             string? line = reader.ReadLine();
             while (line != null)
@@ -139,7 +139,12 @@ namespace SoftCircuits.IniFileParser
                 {
                     if (line[start] == CommentCharacter)
                     {
-                        // Ignore comments
+                        // Store comments
+#if NETSTANDARD2_0
+                        Comments.Add(line.Substring(1));
+#else
+                        Comments.Add(line[1..]);
+#endif
                     }
                     else if (line[start] == '[')
                     {
@@ -148,7 +153,11 @@ namespace SoftCircuits.IniFileParser
                         int pos = line.IndexOf(']', start);
                         if (pos == -1)
                             pos = line.Length;
+#if NETSTANDARD2_0
                         string name = line.Substring(start, pos - start).Trim();
+#else
+                        string name = line[start..pos].Trim();
+#endif
                         if (name.Length > 0)
                         {
                             // Add section if it doesn't already exist
@@ -219,10 +228,8 @@ namespace SoftCircuits.IniFileParser
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            using (StreamWriter writer = new StreamWriter(path, false))
-            {
-                Save(writer);
-            }
+            using StreamWriter writer = new(path, false);
+            Save(writer);
         }
 
         /// <summary>
@@ -236,10 +243,8 @@ namespace SoftCircuits.IniFileParser
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            using (StreamWriter writer = new StreamWriter(path, false, encoding))
-            {
-                Save(writer);
-            }
+            using StreamWriter writer = new(path, false, encoding);
+            Save(writer);
         }
 
         /// <summary>
@@ -254,6 +259,16 @@ namespace SoftCircuits.IniFileParser
                 throw new ArgumentNullException(nameof(writer));
 
             bool firstLine = true;
+
+            // Write comments
+            if (Comments.Count > 0)
+            {
+                foreach (string? comment in Comments)
+                    writer.WriteLine($"{CommentCharacter}{comment ?? string.Empty}");
+                firstLine = false;
+            }
+
+            // Write settings
             foreach (IniSection section in Sections.Values)
             {
                 if (section.Count > 0)
@@ -271,7 +286,7 @@ namespace SoftCircuits.IniFileParser
             }
         }
 
-#region Read values
+        #region Read values
 
         /// <summary>
         /// Returns the value of an INI setting.
@@ -366,7 +381,7 @@ namespace SoftCircuits.IniFileParser
 
 #endregion
 
-#region Write values
+        #region Write values
 
         /// <summary>
         /// Sets an INI file setting. The setting is not written to disk until
@@ -422,12 +437,15 @@ namespace SoftCircuits.IniFileParser
         /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, bool value) => SetSetting(section, setting, BoolOptions.ToString(value));
 
-#endregion
+        #endregion
 
         /// <summary>
-        /// Clears all sections and settings.
+        /// Clears all sections, settings and comments.
         /// </summary>
-        public void Clear() => Sections.Clear();
-
+        public void Clear()
+        {
+            Sections.Clear();
+            Comments.Clear();
+        }
     }
 }

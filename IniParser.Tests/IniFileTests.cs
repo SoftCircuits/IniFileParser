@@ -95,7 +95,7 @@ namespace IniParser.Tests
         [TestMethod]
         public void TestValues()
         {
-            IniFile file = new IniFile();
+            IniFile file = new();
             foreach (string section in Sections)
             {
                 foreach ((string Name, string Value) in StringValues)
@@ -131,8 +131,8 @@ namespace IniParser.Tests
         [TestMethod]
         public void TestWhitespace()
         {
-            StringBuilder builder = new StringBuilder();
-            Random rand = new Random();
+            StringBuilder builder = new();
+            Random rand = new();
 
             builder.AppendLine("  ;  Comment");
             builder.AppendLine("  ;  Comment");
@@ -154,7 +154,7 @@ namespace IniParser.Tests
             }
             byte[] buffer = SaveToBytes(builder.ToString());
 
-            IniFile file = new IniFile();
+            IniFile file = new();
             LoadFromBytes(file, buffer);
             Assert.AreEqual(Sections.Length, file.GetSections().Count());
             foreach (string section in Sections)
@@ -171,12 +171,12 @@ namespace IniParser.Tests
             }
         }
 
-        private string Spaces(Random rand) => new string(' ', rand.Next(2, 14));
+        private static string Spaces(Random rand) => new(' ', rand.Next(2, 14));
 
         [TestMethod]
         public void TestStringComparer()
         {
-            IniFile file = new IniFile(StringComparer.Ordinal);
+            IniFile file = new(StringComparer.Ordinal);
             foreach (string section in Sections)
             {
                 foreach ((string Name, string Value) in StringValues)
@@ -228,7 +228,7 @@ namespace IniParser.Tests
         [TestMethod]
         public void TestSection()
         {
-            IniFile file = new IniFile();
+            IniFile file = new();
             foreach (string section in Sections)
             {
                 foreach ((string Name, string Value) in StringValues)
@@ -248,7 +248,7 @@ namespace IniParser.Tests
             LoadFromBytes(file, buffer);
             Assert.AreEqual(Sections.Length, file.GetSections().Count());
             var settings = file.GetSectionSettings(Sections[0]).ToArray();
-            Assert.AreEqual(TotalItems, settings.Count());
+            Assert.AreEqual(TotalItems, settings.Length);
 
             int i = 0, j;
             for (j = 0; j < StringValues.Length; j++)
@@ -279,7 +279,7 @@ namespace IniParser.Tests
         [TestMethod]
         public void TestCommentCharacter()
         {
-            List<(char c, string[] keys)> comments = new List<(char, string[])>
+            List<(char c, string[] keys)> comments = new()
             {
                 ('\0', new [] { "a", "#c", "@d" }),
                 (';', new [] { "a", "#c", "@d" }),
@@ -297,7 +297,7 @@ a=0
 
             foreach (var (c, keys) in comments)
             {
-                IniFile file = new IniFile();
+                IniFile file = new();
 
                 if (c != '\0')
                     file.CommentCharacter = c;
@@ -307,7 +307,7 @@ a=0
             }
         }
 
-        private static readonly List<(string Setting, string Word, bool Value, bool CanRead)> BoolOptionData = new List<(string Setting, string Word, bool Value, bool CanRead)>
+        private static readonly List<(string Setting, string Word, bool Value, bool CanRead)> BoolOptionData = new()
         {
             ("Setting1", "vraie", true, true),
             ("Setting2", "faux", false, true),
@@ -334,7 +334,7 @@ a=0
         {
             string stringSection = "StringSection";
             string boolSection = "BooleanSection";
-            BoolOptions options = new BoolOptions(StringComparer.Ordinal);
+            BoolOptions options = new(StringComparer.Ordinal);
             options.SetBoolWords(new[] {
                 new BoolWord("vraie", true),
                 new BoolWord("faux", false),
@@ -345,7 +345,7 @@ a=0
             });
             options.NonZeroNumbersAreTrue = false;
 
-            IniFile file = new IniFile(null, options);
+            IniFile file = new(null, options);
             // Write as string values
             foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
                 file.SetSetting(stringSection, Setting, Word);
@@ -374,35 +374,66 @@ a=0
             }
         }
 
-        private byte[] SaveToBytes(IniFile file)
+        [TestMethod]
+        public void TestComments()
         {
-            using (MemoryStream stream = new MemoryStream())
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                file.Save(writer);
-                writer.Flush();
-                return stream.ToArray();
-            }
+            IniFile file = new();
+
+            file.Comments.Add("Abc");
+            file.Comments.Add("123");
+            file.Comments.Add("");
+            file.Comments.Add(null);
+
+            file.SetSetting(IniFile.DefaultSectionName, "Test", "Abc");
+            file.SetSetting(IniFile.DefaultSectionName, "Test2", "123");
+            byte[] buffer = SaveToBytes(file);
+
+            file.Clear();
+            LoadFromBytes(file, buffer);
+
+            Assert.AreEqual(@$"{file.CommentCharacter}Abc
+{file.CommentCharacter}123
+{file.CommentCharacter}
+{file.CommentCharacter}
+
+[{IniFile.DefaultSectionName}]
+Test=Abc
+Test2=123
+", Encoding.UTF8.GetString(buffer));
+
+            Assert.AreEqual(4, file.Comments.Count);
+            Assert.AreEqual("Abc", file.Comments[0]);
+            Assert.AreEqual("123", file.Comments[1]);
+            Assert.AreEqual("", file.Comments[2]);
+            Assert.AreEqual("", file.Comments[3]);
+
+            Assert.AreEqual("Abc", file.GetSetting(IniFile.DefaultSectionName, "Test"));
+            Assert.AreEqual("123", file.GetSetting(IniFile.DefaultSectionName, "Test2"));
         }
 
-        private byte[] SaveToBytes(string contents)
+        private static byte[] SaveToBytes(IniFile file)
         {
-            using (MemoryStream stream = new MemoryStream())
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.Write(contents);
-                writer.Flush();
-                return stream.ToArray();
-            }
+            using MemoryStream stream = new();
+            using StreamWriter writer = new(stream);
+            file.Save(writer);
+            writer.Flush();
+            return stream.ToArray();
         }
 
-        private void LoadFromBytes(IniFile file, byte[] buffer)
+        private static byte[] SaveToBytes(string contents)
         {
-            using (MemoryStream stream = new MemoryStream(buffer))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                file.Load(reader);
-            }
+            using MemoryStream stream = new();
+            using StreamWriter writer = new(stream);
+            writer.Write(contents);
+            writer.Flush();
+            return stream.ToArray();
+        }
+
+        private static void LoadFromBytes(IniFile file, byte[] buffer)
+        {
+            using MemoryStream stream = new(buffer);
+            using StreamReader reader = new(stream);
+            file.Load(reader);
         }
     }
 }
