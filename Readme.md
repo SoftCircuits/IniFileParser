@@ -62,7 +62,11 @@ IEnumerable<IniSetting> settings = file.GetSectionSettings(IniFile.DefaultSectio
 
 #### Comments and Empty Lines
 
-Any line with a semicolon (;) as the first non-space character is assumed to be a comment and is ignored by the parser. Empty lines are also ignored.
+By default, any line with a semicolon (;) as the first non-space character is assumed to be a comment. The comment character can be changed by setting the `CommentCharacter` property.
+
+In addition, any comments found when reading an INI file are stored in the `Comments` collection. And any comments in this collection will be written when saving an INI file. This makes it easy to add comments to INI files you create, or to maintain comments in INI files you modify. (Note, however, that all comments are written to the start of the INI file regardless of where those comments might have been when read.)
+
+Empty lines are also ignored.
 
 #### Custom Boolean Handling
 
