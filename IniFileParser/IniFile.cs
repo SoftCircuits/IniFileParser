@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SoftCircuits.IniFileParser
 {
@@ -29,7 +30,6 @@ namespace SoftCircuits.IniFileParser
         /// non-space character on the line. Default value is a semicolon (<c>;</c>).
         /// </summary>
         public char CommentCharacter { get; set; }
-
 
         /// <summary>
         /// Contains the list of comment lines read from a file, or that will be written
@@ -67,6 +67,19 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
+        /// Asynchronously loads all settings from the specified INI file. Overwrites any existing settings.
+        /// </summary>
+        /// <param name="path">Path of the INI file to load.</param>
+        public async Task LoadAsync(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using StreamReader reader = new(path);
+            await LoadAsync(reader);
+        }
+
+        /// <summary>
         /// Loads all settings from the specified INI file. Overwrites any existing settings.
         /// </summary>
         /// <param name="path">Path of the INI file to load.</param>
@@ -82,6 +95,21 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
+        /// Asynchronously loads all settings from the specified INI file. Overwrites any existing settings.
+        /// </summary>
+        /// <param name="path">Path of the INI file to load.</param>
+        /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
+        /// beginning of the file.</param>
+        public async Task LoadAsync(string path, bool detectEncodingFromByteOrderMarks)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using StreamReader reader = new(path, detectEncodingFromByteOrderMarks);
+            await LoadAsync(reader);
+        }
+
+        /// <summary>
         /// Loads all settings from the specified INI file. Overwrites any existing settings.
         /// </summary>
         /// <param name="path">Path of the INI file to load settings from.</param>
@@ -93,6 +121,20 @@ namespace SoftCircuits.IniFileParser
 
             using StreamReader reader = new(path, encoding);
             Load(reader);
+        }
+
+        /// <summary>
+        /// Asynchronously loads all settings from the specified INI file. Overwrites any existing settings.
+        /// </summary>
+        /// <param name="path">Path of the INI file to load settings from.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public async Task LoadAsync(string path, Encoding encoding)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using StreamReader reader = new(path, encoding);
+            await LoadAsync(reader);
         }
 
         /// <summary>
@@ -112,7 +154,23 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Loads all settings from the specified INI file. Overwrites any existing settings.
+        /// Asynchronously loads all settings from the specified INI file. Overwrites any existing settings.
+        /// </summary>
+        /// <param name="path">Path of the INI file to load settings from.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the
+        /// beginning of the file.</param>
+        public async Task LoadAsync(string path, Encoding encoding, bool detectEncodingFromByteOrderMarks)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using StreamReader reader = new(path, encoding, detectEncodingFromByteOrderMarks);
+            await LoadAsync(reader);
+        }
+
+        /// <summary>
+        /// Loads all settings from the specified stream. Overwrites any existing settings.
         /// </summary>
         /// <param name="reader">The <see cref="StreamReader"></see> to load settings from.</param>
         public void Load(StreamReader reader)
@@ -126,95 +184,122 @@ namespace SoftCircuits.IniFileParser
             // Clear any existing data
             Clear();
 
-            string? line = reader.ReadLine();
-            while (line != null)
+            string? line;
+
+            while ((line = reader.ReadLine()) != null)
             {
-                // Trim leading whitespace
-                int start = 0;
-                while (start < line.Length && char.IsWhiteSpace(line[start]))
-                    start++;
+                ParseLine(line, ref section);
+            }
+        }
 
-                // Process line
-                if (start < line.Length)
+        /// <summary>
+        /// Asynchronously loads all settings from the specified stream. Overwrites any existing settings.
+        /// </summary>
+        /// <param name="reader">The <see cref="StreamReader"></see> to load settings from.</param>
+        public async Task LoadAsync(StreamReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            // Tracks the current section
+            IniSection? section = null;
+
+            // Clear any existing data
+            Clear();
+
+            string? line;
+
+            while ((line = await reader.ReadLineAsync()) != null)
+            {
+                ParseLine(line, ref section);
+            }
+        }
+
+        private void ParseLine(string line, ref IniSection? section)
+        {
+            // Trim leading whitespace
+            int start = 0;
+            while (start < line.Length && char.IsWhiteSpace(line[start]))
+                start++;
+
+            // Process line
+            if (start < line.Length)
+            {
+                if (line[start] == CommentCharacter)
                 {
-                    if (line[start] == CommentCharacter)
-                    {
-                        // Store comments
-#if NETSTANDARD2_0
-                        Comments.Add(line.Substring(1));
+                    // Store comments
+#if !NETSTANDARD2_0
+                    Comments.Add(line[1..]);
 #else
-                        Comments.Add(line[1..]);
+                    Comments.Add(line.Substring(1));
 #endif
-                    }
-                    else if (line[start] == '[')
-                    {
-                        // Parse section header
-                        start++;
-                        int pos = line.IndexOf(']', start);
-                        if (pos == -1)
-                            pos = line.Length;
-#if NETSTANDARD2_0
-                        string name = line.Substring(start, pos - start).Trim();
+                }
+                else if (line[start] == '[')
+                {
+                    // Parse section header
+                    start++;
+                    int pos = line.IndexOf(']', start);
+                    if (pos == -1)
+                        pos = line.Length;
+#if !NETSTANDARD2_0
+                    string name = line[start..pos].Trim();
 #else
-                        string name = line[start..pos].Trim();
+                    string name = line.Substring(start, pos - start).Trim();
 #endif
-                        if (name.Length > 0)
-                        {
-                            // Add section if it doesn't already exist
-                            if (!Sections.TryGetValue(name, out section))
-                            {
-                                section = new IniSection(name, StringComparer);
-                                Sections.Add(section.Name, section);
-                            }
-                        }
-                    }
-                    else
+                    if (name.Length > 0)
                     {
-                        // Parse setting name and value
-                        string name, value;
-
-                        int pos = line.IndexOf('=', start);
-                        if (pos == -1)
+                        // Add section if it doesn't already exist
+                        if (!Sections.TryGetValue(name, out section))
                         {
-                            name = line.Trim();
-                            value = string.Empty;
-                        }
-                        else
-                        {
-#if NETSTANDARD2_0
-                            name = line.Substring(start, pos - start).Trim();
-                            value = line.Substring(pos + 1);    // Do not trim value
-#else
-                            name = line[start..pos].Trim();
-                            value = line[(pos + 1)..];    // Do not trim value
-#endif
-                        }
-
-                        if (name.Length > 0)
-                        {
-                            // Ensure we have a section
-                            if (section == null)
-                            {
-                                section = new IniSection(DefaultSectionName, StringComparer);
-                                Sections.Add(section.Name, section);
-                            }
-
-                            if (section.TryGetValue(name, out IniSetting? setting))
-                            {
-                                // Override previously read value
-                                setting.Value = value;
-                            }
-                            else
-                            {
-                                // Create new setting
-                                setting = new IniSetting { Name = name, Value = value };
-                                section.Add(name, setting);
-                            }
+                            section = new IniSection(name, StringComparer);
+                            Sections.Add(section.Name, section);
                         }
                     }
                 }
-                // Read next line
-                line = reader.ReadLine();
+                else
+                {
+                    // Parse setting name and value
+                    string name, value;
+
+                    int pos = line.IndexOf('=', start);
+                    if (pos == -1)
+                    {
+                        name = line.Trim();
+                        value = string.Empty;
+                    }
+                    else
+                    {
+#if !NETSTANDARD2_0
+                        name = line[start..pos].Trim();
+                        value = line[(pos + 1)..];    // Do not trim value
+#else
+                        name = line.Substring(start, pos - start).Trim();
+                        value = line.Substring(pos + 1);    // Do not trim value
+#endif
+                    }
+
+                    if (name.Length > 0)
+                    {
+                        // Ensure we have a section
+                        if (section == null)
+                        {
+                            section = new IniSection(DefaultSectionName, StringComparer);
+                            Sections.Add(section.Name, section);
+                        }
+
+                        if (section.TryGetValue(name, out IniSetting? setting))
+                        {
+                            // Override previously read value
+                            setting.Value = value;
+                        }
+                        else
+                        {
+                            // Create new setting
+                            setting = new IniSetting { Name = name, Value = value };
+                            section.Add(name, setting);
+                        }
+                    }
+                }
             }
         }
 
@@ -233,6 +318,20 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
+        /// Asynchronously saves the current settings to an INI file. If the file already exists, it is
+        /// overwritten.
+        /// </summary>
+        /// <param name="path">Path of the INI file to write settings to.</param>
+        public async Task SaveAsync(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using StreamWriter writer = new(path, false);
+            await SaveAsync(writer);
+        }
+
+        /// <summary>
         /// Saves the current settings to an INI file. If the file already exists, it is
         /// overwritten.
         /// </summary>
@@ -245,6 +344,21 @@ namespace SoftCircuits.IniFileParser
 
             using StreamWriter writer = new(path, false, encoding);
             Save(writer);
+        }
+
+        /// <summary>
+        /// Asynchronouly saves the current settings to an INI file. If the file already exists, it is
+        /// overwritten.
+        /// </summary>
+        /// <param name="path">Path of the INI file to write settings to.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public async Task SaveAsync(string path, Encoding encoding)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using StreamWriter writer = new(path, false, encoding);
+            await SaveAsync(writer);
         }
 
         /// <summary>
@@ -279,9 +393,48 @@ namespace SoftCircuits.IniFileParser
                     else
                         writer.WriteLine();
 
-                    writer.WriteLine("[{0}]", section.Name);
+                    writer.WriteLine($"[{section.Name}]");
                     foreach (IniSetting setting in section.Values)
                         writer.WriteLine(setting.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously writes the current settings to an INI file. If the file already exists, it is
+        /// overwritten.
+        /// </summary>
+        /// <param name="writer"><see cref="StreamWriter"></see> to save the settings
+        /// to.</param>
+        public async Task SaveAsync(StreamWriter writer)
+        {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+
+            bool firstLine = true;
+
+            // Write comments
+            if (Comments.Count > 0)
+            {
+                foreach (string? comment in Comments)
+                    await writer.WriteLineAsync($"{CommentCharacter}{comment ?? string.Empty}");
+                firstLine = false;
+            }
+
+            // Write settings
+            foreach (IniSection section in Sections.Values)
+            {
+                if (section.Count > 0)
+                {
+                    // Write empty line if starting new section
+                    if (firstLine)
+                        firstLine = false;
+                    else
+                        writer.WriteLine();
+
+                    await writer.WriteLineAsync($"[{section.Name}]");
+                    foreach (IniSetting setting in section.Values)
+                        await writer.WriteLineAsync(setting.ToString());
                 }
             }
         }
