@@ -36,10 +36,10 @@ IniFile file = new IniFile();
 
 file.Load(path);
 
-string name = file.GetSetting(IniFile.DefaultSectionName, "Name", string.Empty));
-int age = file.GetSetting(IniFile.DefaultSectionName, "Age", 0));
-double rating = file.GetSetting(IniFile.DefaultSectionName, "Rating", 0.0));
-bool active = file.GetSetting(IniFile.DefaultSectionName, "Active", false));
+string name = file.GetSetting(IniFile.DefaultSectionName, "Name", string.Empty);
+int age = file.GetSetting(IniFile.DefaultSectionName, "Age", 0);
+double rating = file.GetSetting(IniFile.DefaultSectionName, "Rating", 0.0);
+bool active = file.GetSetting(IniFile.DefaultSectionName, "Active", false);
 ```
 
 If any settings are found that are not under a section header, they will be added to the `IniFile.DefaultSectionName` section.
