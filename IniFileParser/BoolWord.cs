@@ -1,9 +1,12 @@
-﻿// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 
 namespace SoftCircuits.IniFileParser
 {
+    /// <summary>
+    /// Defines a single word that can be interpreted as a <see cref="System.Boolean"/> value.
+    /// </summary>
     public class BoolWord
     {
         /// <summary>

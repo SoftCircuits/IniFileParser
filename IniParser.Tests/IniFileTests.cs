@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
+// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +15,7 @@ namespace IniParser.Tests
     public class IniFileTests
     {
         private readonly string[] Sections =
-        {
+        [
             "GrRkfUPlTn",
             "MHvqnvgjqL",
             "mSXWTrLnvh",
@@ -26,10 +26,10 @@ namespace IniParser.Tests
             "oZtZhwJjBq",
             "PTKHCxEBbT",
             "PidCWOuCUy",
-        };
+        ];
 
-        private readonly (string Name, string Value)[] StringValues = new (string Name, string Value)[]
-        {
+        private readonly (string Name, string Value)[] StringValues =
+        [
             ("gbmoAGoUAX", "nhsvoVCFeS"),
             ("XknXpFZwAn", "lWShEVKQja"),
             ("HDekUKYhQI", "JECcqkbsWj"),
@@ -40,10 +40,10 @@ namespace IniParser.Tests
             ("yhUWOpEMys", "hQlQolVhVy"),
             ("cxIygWRbgc", "jjYvzGlYEg"),
             ("iBJOskHHDX", "DazniZGfot"),
-        };
+        ];
 
-        private readonly (string Name, int Value)[] IntValues = new (string Name, int Value)[]
-        {
+        private readonly (string Name, int Value)[] IntValues =
+        [
             ("RdxljKJfFz", 98423023),
             ("EnMeiBRqNg", 202612153),
             ("bUHJQbePEf", 386456548),
@@ -54,10 +54,10 @@ namespace IniParser.Tests
             ("HnonxtSYwE", 277714502),
             ("vejHyhMynk", 179483129),
             ("SXpdOXFNVr", 138444389),
-        };
+        ];
 
-        private readonly (string Name, double Value)[] DoubleValues = new (string Name, double Value)[]
-        {
+        private readonly (string Name, double Value)[] DoubleValues =
+        [
             ("OwKRKjYfPH", 0.7080722530),
             ("FanKstopNJ", 0.5025695865),
             ("zEJOKrIoRN", 0.8479851980),
@@ -68,10 +68,10 @@ namespace IniParser.Tests
             ("dIvDIbeEhZ", 0.2999469886),
             ("EZTmbnoMFN", 0.0680769511),
             ("TWfWqkMubh", 0.1385922434),
-        };
+        ];
 
-        private readonly (string Name, bool Value)[] BoolValues = new (string Name, bool Value)[]
-        {
+        private readonly (string Name, bool Value)[] BoolValues =
+        [
             ("QKgfNDkkjI", true),
             ("dcciuRwwyD", true),
             ("pvKHvDqNCm", false),
@@ -82,14 +82,28 @@ namespace IniParser.Tests
             ("GLdUrFdAex", false),
             ("VsmGCAwcTp", true),
             ("KcNDDohDUb", false),
-        };
+        ];
+
+        private readonly (string Name, DateTime Value)[] DateTimeValues =
+        [
+            ("RcgbLRxalW", new(2024, 3, 24, 12, 45, 13, 123)),
+            ("dcdibRwxyD", new(1900, 12, 25)),
+            ("pvKRvDqOCm", new(1961, 10, 29)),
+            ("oXriwrtKni", new(2001, 6, 19)),
+            ("bPqWFRvbaK", new(2024, 6, 22, 11, 14, 9, 234)),
+            ("NeMnlWrCwa", new(1974, 11, 18, 22, 30, 59, 999)),
+            ("VskGCAxcVp", new(2022, 8, 17, 15, 45, 1, 1)),
+            ("KsNDDjjDUb", new(2018, 10, 23, 16, 18, 37, 829)),
+            ("wMssfPREKj", DateTime.MinValue),
+            //("GLeUrFdBfy", DateTime.MaxValue),    // Fails because format does not include microseconds
+        ];
 
         // Sum of all values lists
         private readonly int TotalItems;
 
         public IniFileTests()
         {
-            TotalItems = StringValues.Length + IntValues.Length + DoubleValues.Length + BoolValues.Length;
+            TotalItems = StringValues.Length + IntValues.Length + DoubleValues.Length + BoolValues.Length + DateTimeValues.Length;
         }
 
         [TestMethod]
@@ -105,6 +119,8 @@ namespace IniParser.Tests
                 foreach ((string Name, double Value) in DoubleValues)
                     file.SetSetting(section, Name, Value);
                 foreach ((string Name, bool Value) in BoolValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, DateTime Value) in DateTimeValues)
                     file.SetSetting(section, Name, Value);
             }
             byte[] buffer = SaveToBytes(file);
@@ -125,6 +141,8 @@ namespace IniParser.Tests
                     Assert.AreEqual(Value, file.GetSetting(section, Name, 0.0));
                 foreach ((string Name, bool Value) in BoolValues)
                     Assert.AreEqual(Value, file.GetSetting(section, Name, false));
+                foreach ((string Name, DateTime Value) in DateTimeValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, DateTime.MinValue));
             }
         }
 
@@ -151,6 +169,8 @@ namespace IniParser.Tests
                     builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
                 foreach ((string Name, bool Value) in BoolValues)
                     builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
+                foreach ((string Name, DateTime Value) in DateTimeValues)
+                    builder.AppendLine($"{spaces}{Name}{spaces}={Value.ToString(IniFile.DefaultDateTimeFormat)}");
             }
             byte[] buffer = SaveToBytes(builder.ToString());
 
@@ -168,6 +188,8 @@ namespace IniParser.Tests
                     Assert.AreEqual(Value, file.GetSetting(section, Name, 0.0));
                 foreach ((string Name, bool Value) in BoolValues)
                     Assert.AreEqual(Value, file.GetSetting(section, Name, false));
+                foreach ((string Name, DateTime Value) in DateTimeValues)
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, DateTime.MinValue));
             }
         }
 
@@ -186,6 +208,8 @@ namespace IniParser.Tests
                 foreach ((string Name, double Value) in DoubleValues)
                     file.SetSetting(section, Name, Value);
                 foreach ((string Name, bool Value) in BoolValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, DateTime Value) in DateTimeValues)
                     file.SetSetting(section, Name, Value);
             }
             byte[] buffer = SaveToBytes(file);
@@ -222,6 +246,13 @@ namespace IniParser.Tests
                     Assert.AreEqual(false, file.GetSetting(section, Name.ToLower(), false));
                     Assert.AreEqual(Value, file.GetSetting(section, Name, false));
                 }
+                DateTime now = DateTime.Now;
+                foreach ((string Name, DateTime Value) in DateTimeValues)
+                {
+                    Assert.AreEqual(now, file.GetSetting(section, Name.ToUpper(), now));
+                    Assert.AreEqual(now, file.GetSetting(section, Name.ToLower(), now));
+                    Assert.AreEqual(Value, file.GetSetting(section, Name, now));
+                }
             }
         }
 
@@ -238,6 +269,8 @@ namespace IniParser.Tests
                 foreach ((string Name, double Value) in DoubleValues)
                     file.SetSetting(section, Name, Value);
                 foreach ((string Name, bool Value) in BoolValues)
+                    file.SetSetting(section, Name, Value);
+                foreach ((string Name, DateTime Value) in DateTimeValues)
                     file.SetSetting(section, Name, Value);
             }
             byte[] buffer = SaveToBytes(file);
@@ -274,18 +307,24 @@ namespace IniParser.Tests
                 Assert.AreEqual(BoolValues[j].Name, settings[j + i].Name);
                 Assert.AreEqual(BoolValues[j].Value, bool.Parse(settings[j + i].Value));
             }
+            i += j;
+            for (j = 0; j < DateTimeValues.Length; j++)
+            {
+                Assert.AreEqual(DateTimeValues[j].Name, settings[j + i].Name);
+                Assert.AreEqual(DateTimeValues[j].Value, DateTime.ParseExact(settings[j + i].Value, IniFile.DefaultDateTimeFormat, null));
+            }
         }
 
         [TestMethod]
         public void TestCommentCharacter()
         {
-            List<(char c, string[] keys)> comments = new()
-            {
+            List<(char c, string[] keys)> comments =
+            [
                 ('\0', new [] { "a", "#c", "@d" }),
                 (';', new [] { "a", "#c", "@d" }),
                 ('#', new [] { "a", ";b", "@d" }),
                 ('@', new [] { "a", ";b", "#c" }),
-            };
+            ];
 
             string contents = @"[General]
 a=0
@@ -307,8 +346,8 @@ a=0
             }
         }
 
-        private static readonly List<(string Setting, string Word, bool Value, bool CanRead)> BoolOptionData = new()
-        {
+        private static readonly List<(string Setting, string Word, bool Value, bool CanRead)> BoolOptionData =
+        [
             ("Setting1", "vraie", true, true),
             ("Setting2", "faux", false, true),
             ("Setting3", "oui", true, true),
@@ -327,7 +366,7 @@ a=0
             ("Setting16", "0", false, false),
             ("Setting17", "True", true, false),
             ("Setting18", "False", false, false),
-        };
+        ];
 
         [TestMethod]
         public void TestBoolOptions()
@@ -335,22 +374,22 @@ a=0
             string stringSection = "StringSection";
             string boolSection = "BooleanSection";
             BoolOptions options = new(StringComparer.Ordinal);
-            options.SetBoolWords(new[] {
+            options.SetBoolWords([
                 new BoolWord("vraie", true),
                 new BoolWord("faux", false),
                 new BoolWord("oui", true),
                 new BoolWord("non", false),
                 new BoolWord("sur", true),
                 new BoolWord("de", false),
-            });
+            ]);
             options.NonZeroNumbersAreTrue = false;
 
             IniFile file = new(null, options);
             // Write as string values
-            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
+            foreach ((string Setting, string Word, bool _, bool _) in BoolOptionData)
                 file.SetSetting(stringSection, Setting, Word);
             // Write as bool values
-            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
+            foreach ((string Setting, string _, bool Value, bool _) in BoolOptionData)
                 file.SetSetting(boolSection, Setting, Value);
             byte[] buffer = SaveToBytes(file);
 
@@ -358,7 +397,7 @@ a=0
             Assert.AreEqual(0, file.GetSections().Count());
             LoadFromBytes(file, buffer);
 
-            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
+            foreach ((string Setting, string _, bool Value, bool CanRead) in BoolOptionData)
             {
                 bool result = file.GetSetting(stringSection, Setting, !Value);
                 if (CanRead)
@@ -367,7 +406,7 @@ a=0
                     Assert.AreEqual(!Value, result);
             }
 
-            foreach ((string Setting, string Word, bool Value, bool CanRead) in BoolOptionData)
+            foreach ((string Setting, string _, bool Value, bool _) in BoolOptionData)
             {
                 bool result = file.GetSetting(boolSection, Setting, !Value);
                 Assert.AreEqual(Value, result);

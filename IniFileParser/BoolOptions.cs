@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -51,8 +51,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="words">List of Boolean words and their corresponding value.</param>
         public void SetBoolWords(IEnumerable<BoolWord> words)
         {
+#if NETSTANDARD2_0
             if (words == null)
                 throw new ArgumentNullException(nameof(words));
+#else
+            ArgumentNullException.ThrowIfNull(words);
+#endif
 
             // Get default true word
             BoolWord? word = words.FirstOrDefault(w => w.Value == true);

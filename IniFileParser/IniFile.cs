@@ -1,9 +1,10 @@
-﻿// Copyright (c) 2019-2021 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,16 @@ namespace SoftCircuits.IniFileParser
         /// non-space character on the line. Default value is a semicolon (<c>;</c>).
         /// </summary>
         public char CommentCharacter { get; set; }
+
+        /// <summary>
+        /// The default format string used to encode <see cref="DateTime"/> values;
+        /// </summary>
+        public const string DefaultDateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+
+        /// <summary>
+        /// Gets or sets the format string used to encode and decode <see cref="DateTime"/> values.
+        /// </summary>
+        public string DateTimeFormat = DefaultDateTimeFormat;
 
         /// <summary>
         /// Contains the list of comment lines read from a file, or that will be written
@@ -59,8 +70,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="path">Path of the INI file to load.</param>
         public void Load(string path)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path);
             Load(reader);
@@ -72,8 +87,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="path">Path of the INI file to load.</param>
         public async Task LoadAsync(string path)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path);
             await LoadAsync(reader);
@@ -87,8 +106,12 @@ namespace SoftCircuits.IniFileParser
         /// beginning of the file.</param>
         public void Load(string path, bool detectEncodingFromByteOrderMarks)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path, detectEncodingFromByteOrderMarks);
             Load(reader);
@@ -102,8 +125,12 @@ namespace SoftCircuits.IniFileParser
         /// beginning of the file.</param>
         public async Task LoadAsync(string path, bool detectEncodingFromByteOrderMarks)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path, detectEncodingFromByteOrderMarks);
             await LoadAsync(reader);
@@ -116,8 +143,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="encoding">The character encoding to use.</param>
         public void Load(string path, Encoding encoding)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path, encoding);
             Load(reader);
@@ -130,8 +161,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="encoding">The character encoding to use.</param>
         public async Task LoadAsync(string path, Encoding encoding)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path, encoding);
             await LoadAsync(reader);
@@ -146,8 +181,12 @@ namespace SoftCircuits.IniFileParser
         /// beginning of the file.</param>
         public void Load(string path, Encoding encoding, bool detectEncodingFromByteOrderMarks)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path, encoding, detectEncodingFromByteOrderMarks);
             Load(reader);
@@ -162,8 +201,12 @@ namespace SoftCircuits.IniFileParser
         /// beginning of the file.</param>
         public async Task LoadAsync(string path, Encoding encoding, bool detectEncodingFromByteOrderMarks)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamReader reader = new(path, encoding, detectEncodingFromByteOrderMarks);
             await LoadAsync(reader);
@@ -175,8 +218,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="reader">The <see cref="StreamReader"></see> to load settings from.</param>
         public void Load(StreamReader reader)
         {
+#if NETSTANDARD2_0
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
+#else
+            ArgumentNullException.ThrowIfNull(reader);
+#endif
 
             // Tracks the current section
             IniSection? section = null;
@@ -198,8 +245,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="reader">The <see cref="StreamReader"></see> to load settings from.</param>
         public async Task LoadAsync(StreamReader reader)
         {
+#if NETSTANDARD2_0
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
+#else
+            ArgumentNullException.ThrowIfNull(reader);
+#endif
 
             // Tracks the current section
             IniSection? section = null;
@@ -310,8 +361,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="path">Path of the INI file to write settings to.</param>
         public void Save(string path)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamWriter writer = new(path, false);
             Save(writer);
@@ -324,8 +379,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="path">Path of the INI file to write settings to.</param>
         public async Task SaveAsync(string path)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamWriter writer = new(path, false);
             await SaveAsync(writer);
@@ -339,8 +398,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="encoding">The character encoding to use.</param>
         public void Save(string path, Encoding encoding)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamWriter writer = new(path, false, encoding);
             Save(writer);
@@ -354,8 +417,12 @@ namespace SoftCircuits.IniFileParser
         /// <param name="encoding">The character encoding to use.</param>
         public async Task SaveAsync(string path, Encoding encoding)
         {
+#if NETSTANDARD2_0
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+#else
+            ArgumentNullException.ThrowIfNull(path);
+#endif
 
             using StreamWriter writer = new(path, false, encoding);
             await SaveAsync(writer);
@@ -369,8 +436,12 @@ namespace SoftCircuits.IniFileParser
         /// to.</param>
         public void Save(StreamWriter writer)
         {
+#if NETSTANDARD2_0
             if (writer == null)
                 throw new ArgumentNullException(nameof(writer));
+#else
+            ArgumentNullException.ThrowIfNull(writer);
+#endif
 
             bool firstLine = true;
 
@@ -408,8 +479,12 @@ namespace SoftCircuits.IniFileParser
         /// to.</param>
         public async Task SaveAsync(StreamWriter writer)
         {
+#if NETSTANDARD2_0
             if (writer == null)
                 throw new ArgumentNullException(nameof(writer));
+#else
+            ArgumentNullException.ThrowIfNull(writer);
+#endif
 
             bool firstLine = true;
 
@@ -450,10 +525,15 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the specified setting value.</returns>
         public string? GetSetting(string section, string setting, string? defaultValue = null)
         {
+#if NETSTANDARD2_0
             if (section == null)
                 throw new ArgumentNullException(nameof(section));
             if (setting == null)
                 throw new ArgumentNullException(nameof(setting));
+#else
+            ArgumentNullException.ThrowIfNull(section);
+            ArgumentNullException.ThrowIfNull(setting);
+#endif
 
             if (Sections.TryGetValue(section, out IniSection? iniSection))
             {
@@ -467,13 +547,13 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Returns the value of an INI setting as an integer value.
+        /// Returns the value of an INI setting as an <see cref="System.Int32"/> value.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found,
-        /// or if it could not be converted to a integer value.</param>
-        /// <returns>Returns the specified setting value as an integer value.</returns>
+        /// or if it could not be converted to a <see cref="System.Int32"/> value.</param>
+        /// <returns>Returns the specified setting value as an <see cref="System.Int32"/> value.</returns>
         public int GetSetting(string section, string setting, int defaultValue)
         {
             return int.TryParse(GetSetting(section, setting), out int value) ?
@@ -482,13 +562,13 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Returns the value of an INI setting as a double value.
+        /// Returns the value of an INI setting as a <see cref="System.Double"/> value.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found,
-        /// or if it could not be converted to a double value.</param>
-        /// <returns>Returns the specified setting value as a double value.</returns>
+        /// or if it could not be converted to a <see cref="System.Double"/> value.</param>
+        /// <returns>Returns the specified setting value as a <see cref="System.Double"/> value.</returns>
         public double GetSetting(string section, string setting, double defaultValue)
         {
             return double.TryParse(GetSetting(section, setting), out double value) ?
@@ -497,16 +577,31 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Returns the value of an INI setting as a Boolean value.
+        /// Returns the value of an INI setting as a <see cref="System.Boolean"/> value.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The INI setting name.</param>
         /// <param name="defaultValue">The value to return if the setting was not found,
-        /// or if it could not be converted to a Boolean value.</param>
-        /// <returns>Returns the specified setting value as a Boolean.</returns>
+        /// or if it could not be converted to a <see cref="System.Boolean"/> value.</param>
+        /// <returns>Returns the specified setting value as a <see cref="System.Boolean"/>.</returns>
         public bool GetSetting(string section, string setting, bool defaultValue)
         {
             return BoolOptions.TryParse(GetSetting(section, setting), out bool value) ?
+                value :
+                defaultValue;
+        }
+
+        /// <summary>
+        /// Returns the value of an INI setting as a <see cref="System.DateTime"/> value.
+        /// </summary>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The INI setting name.</param>
+        /// <param name="defaultValue">The value to return if the setting was not found,
+        /// or if it could not be converted to a <see cref="System.DateTime"/> value.</param>
+        /// <returns>Returns the specified setting value as a <see cref="System.DateTime"/>.</returns>
+        public DateTime GetSetting(string section, string setting, DateTime defaultValue)
+        {
+            return DateTime.TryParseExact(GetSetting(section, setting), DateTimeFormat, null, DateTimeStyles.None, out DateTime value) ?
                 value :
                 defaultValue;
         }
@@ -524,31 +619,40 @@ namespace SoftCircuits.IniFileParser
         /// <returns>Returns the settings in the given INI section.</returns>
         public IEnumerable<IniSetting> GetSectionSettings(string section)
         {
+#if NETSTANDARD2_0
             if (section == null)
                 throw new ArgumentNullException(nameof(section));
+#else
+            ArgumentNullException.ThrowIfNull(section);
+#endif
 
             return (Sections.TryGetValue(section, out IniSection? iniSection)) ?
                 iniSection.Values :
                 Enumerable.Empty<IniSetting>();
         }
 
-#endregion
+        #endregion
 
         #region Write values
 
         /// <summary>
         /// Sets an INI file setting. The setting is not written to disk until
-        /// <see cref="Save"/> is called.
+        /// <see cref="Save(string)"/> or <see cref="SaveAsync(string)"/> is called.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The name of the INI file setting.</param>
         /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, string value)
         {
+#if NETSTANDARD2_0
             if (section == null)
                 throw new ArgumentNullException(nameof(section));
             if (setting == null)
                 throw new ArgumentNullException(nameof(setting));
+#else
+            ArgumentNullException.ThrowIfNull(section);
+            ArgumentNullException.ThrowIfNull(setting);
+#endif
 
             // Add section if needed
             if (!Sections.TryGetValue(section, out IniSection? iniSection))
@@ -567,7 +671,7 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Sets an INI file setting with an integer value.
+        /// Sets an INI file setting with an <see cref="System.Int32"/> value.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The name of the INI file setting.</param>
@@ -575,7 +679,7 @@ namespace SoftCircuits.IniFileParser
         public void SetSetting(string section, string setting, int value) => SetSetting(section, setting, value.ToString());
 
         /// <summary>
-        /// Sets an INI file setting with a double value.
+        /// Sets an INI file setting with a <see cref="System.Double"/> value.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The name of the INI file setting.</param>
@@ -583,12 +687,20 @@ namespace SoftCircuits.IniFileParser
         public void SetSetting(string section, string setting, double value) => SetSetting(section, setting, value.ToString());
 
         /// <summary>
-        /// Sets an INI file setting with a Boolean value.
+        /// Sets an INI file setting with a <see cref="System.Boolean"/> value.
         /// </summary>
         /// <param name="section">The INI file section name.</param>
         /// <param name="setting">The name of the INI file setting.</param>
         /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, bool value) => SetSetting(section, setting, BoolOptions.ToString(value));
+
+        /// <summary>
+        /// Sets an INI file setting with a <see cref="System.DateTime"/> value.
+        /// </summary>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The name of the INI file setting.</param>
+        /// <param name="value">The value of the INI file setting.</param>
+        public void SetSetting(string section, string setting, DateTime value) => SetSetting(section, setting, value.ToString(DateTimeFormat));
 
         #endregion
 

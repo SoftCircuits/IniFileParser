@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>annotations</Nullable>
     <Nullable Condition="'$(TargetFramework)' == 'net5.0'">enable</Nullable>
     <LangVersion>9.0</LangVersion>
@@ -10,7 +11,7 @@
     <PackageId>SoftCircuits.IniFileParser</PackageId>
     <Authors>Jonathan Wood</Authors>
     <Company>SoftCircuits</Company>
-    <Copyright>Copyright © 2019-2021 SoftCircuits</Copyright>
+    <Copyright>Copyright © 2019-2024 SoftCircuits</Copyright>
     <Description>Lightweight .NET INI-file parser that can easily read and write INI files. It provides direct support for string, int, double and bool setting types.
 
 In addition to reading and writing individual settings, it can return all of the sections in the INI file, and also return all the settings within a particular INI-file section.
@@ -22,9 +23,9 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser ini-parser parse parsing</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>2.1.0</Version>
+    <Version>2.5.0</Version>
     <AssemblyVersion></AssemblyVersion>
-    <PackageReleaseNotes>Added async methods; Now also targeting .NET 6.0.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added support for DateTime values; Added missing XML documentation; Added direct support for .NET 7 and .NET 8; Removed direct support for now deprecated .NET 5; Minor tweaks and optimizations.</PackageReleaseNotes>
     <FileVersion></FileVersion>
     <PackageIcon>Logo_64x64.png</PackageIcon>
     <PackageIconUrl />
