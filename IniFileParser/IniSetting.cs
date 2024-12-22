@@ -26,6 +26,6 @@ namespace SoftCircuits.IniFileParser
         /// This method is used to write each setting to the INI file and
         /// so the result must fit that format.
         /// </remarks>
-        public override string ToString() => $"{Name ?? string.Empty}={Value ?? string.Empty}";
+        public override string ToString() => $"{Name}={Value}";
     }
 }

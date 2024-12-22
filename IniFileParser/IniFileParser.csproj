@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
-	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TargetFrameworks>net9.0;net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>annotations</Nullable>
     <Nullable Condition="'$(TargetFramework)' == 'net5.0'">enable</Nullable>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>latest</LangVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>SoftCircuits.IniFileParser</PackageId>
@@ -23,9 +23,9 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser ini-parser parse parsing</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>2.5.0</Version>
+    <Version>2.6.0</Version>
     <AssemblyVersion></AssemblyVersion>
-    <PackageReleaseNotes>Added support for DateTime values; Added missing XML documentation; Added direct support for .NET 7 and .NET 8; Removed direct support for now deprecated .NET 5; Minor tweaks and optimizations.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added direct support for .NET 9.0; Code clean up.</PackageReleaseNotes>
     <FileVersion></FileVersion>
     <PackageIcon>Logo_64x64.png</PackageIcon>
     <PackageIconUrl />

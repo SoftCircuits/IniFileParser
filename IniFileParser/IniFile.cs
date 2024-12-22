@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -60,7 +59,7 @@ namespace SoftCircuits.IniFileParser
             Sections = new Dictionary<string, IniSection>(StringComparer);
             StringComparer = comparer ?? StringComparer.CurrentCultureIgnoreCase;
             BoolOptions = boolOptions ?? new BoolOptions();
-            Comments = new();
+            Comments = [];
             CommentCharacter = ';';
         }
 
@@ -628,7 +627,7 @@ namespace SoftCircuits.IniFileParser
 
             return (Sections.TryGetValue(section, out IniSection? iniSection)) ?
                 iniSection.Values :
-                Enumerable.Empty<IniSetting>();
+                [];
         }
 
         #endregion

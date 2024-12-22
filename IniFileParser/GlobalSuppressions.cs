@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0270:Use coalesce expression", Justification = "<Pending>", Scope = "member", Target = "~M:SoftCircuits.IniFileParser.BoolOptions.SetBoolWords(System.Collections.Generic.IEnumerable{SoftCircuits.IniFileParser.BoolWord})")]
+[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "<Pending>", Scope = "namespace", Target = "~N:SoftCircuits.IniFileParser")]

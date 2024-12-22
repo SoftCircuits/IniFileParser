@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+[assembly: Parallelize]
+
 namespace IniParser.Tests
 {
     [TestClass]
@@ -242,8 +244,8 @@ namespace IniParser.Tests
                 }
                 foreach ((string Name, bool Value) in BoolValues)
                 {
-                    Assert.AreEqual(false, file.GetSetting(section, Name.ToUpper(), false));
-                    Assert.AreEqual(false, file.GetSetting(section, Name.ToLower(), false));
+                    Assert.IsFalse(file.GetSetting(section, Name.ToUpper(), false));
+                    Assert.IsFalse(file.GetSetting(section, Name.ToLower(), false));
                     Assert.AreEqual(Value, file.GetSetting(section, Name, false));
                 }
                 DateTime now = DateTime.Now;
@@ -326,12 +328,14 @@ namespace IniParser.Tests
                 ('@', new [] { "a", ";b", "#c" }),
             ];
 
-            string contents = @"[General]
-a=0
-;b=1
-#c=2
-@d=3
-";
+            string contents =
+                """
+                [General]
+                a=0
+                ;b=1
+                #c=2
+                @d=3
+                """;
             byte[] contentBytes = SaveToBytes(contents);
 
             foreach (var (c, keys) in comments)
