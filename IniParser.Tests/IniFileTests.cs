@@ -454,6 +454,40 @@ Test2=123
             Assert.AreEqual("123", file.GetSetting(IniFile.DefaultSectionName, "Test2"));
         }
 
+        [TestMethod]
+        public void TestDelete()
+        {
+            IniFile file = new();
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    file.SetSetting($"Section{i + 1}", $"Setting{j + 1}", $"Value{j + 1}");
+                }
+            }
+            byte[] buffer = SaveToBytes(file);
+
+            file.Clear();
+            LoadFromBytes(file, buffer);
+
+            Assert.IsTrue(file.DeleteSection("Section2"));
+            Assert.IsTrue(file.DeleteSetting("Section3", "Setting3"));
+            buffer = SaveToBytes(file);
+
+            file.Clear();
+            LoadFromBytes(file, buffer);
+
+            var sectionSettings = file.GetSectionSettings("Section1");
+            Assert.AreEqual(5, sectionSettings.Count());
+            sectionSettings = file.GetSectionSettings("Section2");
+            Assert.AreEqual(0, sectionSettings.Count());
+
+            Assert.IsNotNull(file.GetSetting("Section3", "Setting1"));
+            Assert.IsNotNull(file.GetSetting("Section3", "Setting2"));
+            Assert.IsNull(file.GetSetting("Section3", "Setting3"));
+        }
+
         private static byte[] SaveToBytes(IniFile file)
         {
             using MemoryStream stream = new();

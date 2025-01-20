@@ -701,6 +701,46 @@ namespace SoftCircuits.IniFileParser
         /// <param name="value">The value of the INI file setting.</param>
         public void SetSetting(string section, string setting, DateTime value) => SetSetting(section, setting, value.ToString(DateTimeFormat));
 
+        /// <summary>
+        /// Deletes the specified section and all settings within that section.
+        /// </summary>
+        /// <param name="section">The INI file section name.</param>
+        /// <returns>True if the section was deleted, false if the section was not found.</returns>
+        public bool DeleteSection(string section)
+        {
+#if NETSTANDARD2_0
+            if (section == null)
+                throw new ArgumentNullException(nameof(section));
+#else
+            ArgumentNullException.ThrowIfNull(section);
+#endif
+            return Sections.Remove(section);
+        }
+
+        /// <summary>
+        /// Deletes the specified setting.
+        /// </summary>
+        /// <param name="section">The INI file section name.</param>
+        /// <param name="setting">The name of the INI file setting.</param>
+        /// <returns>True if the setting was deleted, false if the setting was not found.</returns>
+        public bool DeleteSetting(string section, string setting)
+        {
+#if NETSTANDARD2_0
+            if (section == null)
+                throw new ArgumentNullException(nameof(section));
+            if (setting == null)
+                throw new ArgumentNullException(nameof(setting));
+#else
+            ArgumentNullException.ThrowIfNull(section);
+            ArgumentNullException.ThrowIfNull(setting);
+#endif
+            if (Sections.TryGetValue(section, out IniSection? iniSection))
+            {
+                return iniSection.Remove(setting);
+            }
+            return false;
+        }
+
         #endregion
 
         /// <summary>
