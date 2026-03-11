@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2026 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 
@@ -15,12 +15,12 @@ namespace SoftCircuits.IniFileParser
     public class BoolWord(string word, bool value)
     {
         /// <summary>
-        /// Specifies a word that can be interpreted as a Boolean value.
+        /// Gets or sets the word that can be interpreted as a Boolean value.
         /// </summary>
         public string Word { get; set; } = word;
 
         /// <summary>
-        /// Specifies the Boolean value of the associated word.
+        /// Gets or sets the Boolean value of the associated word.
         /// </summary>
         public bool Value { get; set; } = value;
     }

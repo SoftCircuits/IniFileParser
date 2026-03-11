@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2026 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -17,8 +17,8 @@ namespace SoftCircuits.IniFileParser
         private string FalseString = "false";
 
         /// <summary>
-        /// Gets or sets whether any value that can be interpreted as a non-zero integer
-        /// should be considered to be <c>true</c> when reading settings.
+        /// Gets or sets whether numeric values should be interpreted as Boolean values. If true, any non-zero integer value
+        /// will be considered to be <c>true</c>, and zero will be considered to be <c>false</c>.
         /// </summary>
         public bool NonZeroNumbersAreTrue { get; set; }
 
@@ -29,6 +29,7 @@ namespace SoftCircuits.IniFileParser
         /// If not supplied, <c>StringComparer.CurrentCultureIgnoreCase</c> is used.</param>
         public BoolOptions(StringComparer? comparer = null)
         {
+            // Create default Boolean options
             BoolStringLookup = new Dictionary<string, bool>(comparer ?? StringComparer.CurrentCultureIgnoreCase)
             {
                 [TrueString] = true,
@@ -61,13 +62,13 @@ namespace SoftCircuits.IniFileParser
             // Get default true word
             BoolWord? word = words.FirstOrDefault(w => w.Value == true);
             if (word == null)
-                throw new InvalidOperationException("Boolean word list contains no entry for 'true' values.");
+                throw new InvalidOperationException("Boolean word list contains no entry for 'true' value.");
             TrueString = word.Word;
 
             // Get default false word
             word = words.FirstOrDefault(w => w.Value == false);
             if (word == null)
-                throw new InvalidOperationException("Boolean word list contains no entry for 'false' values.");
+                throw new InvalidOperationException("Boolean word list contains no entry for 'false' value.");
             FalseString = word.Word;
 
             // Store words in lookup table

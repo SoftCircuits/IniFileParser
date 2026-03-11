@@ -1,6 +1,7 @@
-// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
+// Copyright (c) 2019-2026 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SoftCircuits.IniFileParser;
 using System;
@@ -152,7 +153,6 @@ namespace IniParser.Tests
         public void TestWhitespace()
         {
             StringBuilder builder = new();
-            Random rand = new();
 
             builder.AppendLine("  ;  Comment");
             builder.AppendLine("  ;  Comment");
@@ -161,7 +161,7 @@ namespace IniParser.Tests
             foreach (string section in Sections)
             {
                 builder.AppendLine();
-                string spaces = Spaces(rand);
+                string spaces = Spaces();
                 builder.AppendLine($"{spaces}[{spaces}{section}{spaces}{spaces}]{spaces}");
                 foreach ((string Name, string Value) in StringValues)
                     builder.AppendLine($"{spaces}{Name}{spaces}={Value}");
@@ -195,7 +195,7 @@ namespace IniParser.Tests
             }
         }
 
-        private static string Spaces(Random rand) => new(' ', rand.Next(2, 14));
+        private static string Spaces() => new(' ', Random.Shared.Next(2, 14));
 
         [TestMethod]
         public void TestStringComparer()
@@ -488,6 +488,8 @@ Test2=123
             Assert.IsNull(file.GetSetting("Section3", "Setting3"));
         }
 
+        #region Memory save/load
+
         private static byte[] SaveToBytes(IniFile file)
         {
             using MemoryStream stream = new();
@@ -512,5 +514,8 @@ Test2=123
             using StreamReader reader = new(stream);
             file.Load(reader);
         }
+
+        #endregion
+
     }
 }

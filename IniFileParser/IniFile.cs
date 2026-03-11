@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2026 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 using System;
@@ -21,15 +21,20 @@ namespace SoftCircuits.IniFileParser
         private readonly BoolOptions BoolOptions;
 
         /// <summary>
-        /// Default section name. Used for any settings found outside any section header.
+        /// Contains the list of comment lines read from a file, or that will be written
+        /// to a file.
+        /// </summary>
+        public List<string?> Comments { get; private set; }
+
+        /// <summary>
+        /// Default section name. Used for any settings found outside a section header.
         /// </summary>
         public const string DefaultSectionName = "General";
 
         /// <summary>
-        /// Gets or sets the character used to signify a comment. Must be the first
-        /// non-space character on the line. Default value is a semicolon (<c>;</c>).
+        /// The default character used to signify a comment.
         /// </summary>
-        public char CommentCharacter { get; set; }
+        public const char DefaultCommentCharacter = ';';
 
         /// <summary>
         /// The default format string used to encode <see cref="DateTime"/> values;
@@ -39,13 +44,13 @@ namespace SoftCircuits.IniFileParser
         /// <summary>
         /// Gets or sets the format string used to encode and decode <see cref="DateTime"/> values.
         /// </summary>
-        public string DateTimeFormat = DefaultDateTimeFormat;
+        public string DateTimeFormat { get; set; }
 
         /// <summary>
-        /// Contains the list of comment lines read from a file, or that will be written
-        /// to a file.
+        /// Gets or sets the character used to signify a comment. Must be the first
+        /// non-space character on the line. Default value is a semicolon (<c>;</c>).
         /// </summary>
-        public List<string?> Comments { get; private set; }
+        public char CommentCharacter { get; set; }
 
         /// <summary>
         /// Constructs a new <see cref="IniFile"></see> instance.
@@ -53,14 +58,15 @@ namespace SoftCircuits.IniFileParser
         /// <param name="comparer"><see cref="StringComparer"></see> used to compare section and setting
         /// names. If not specified, <see cref="StringComparer.CurrentCultureIgnoreCase"></see> is used
         /// (i.e. names are not case-sensitive).</param>
-        /// <param name="boolOptions">Options for interpreting <c>bool</c> values.</param>
+        /// <param name="boolOptions">Optional settings for interpreting <c>bool</c> values.</param>
         public IniFile(StringComparer? comparer = null, BoolOptions? boolOptions = null)
         {
-            Sections = new Dictionary<string, IniSection>(StringComparer);
             StringComparer = comparer ?? StringComparer.CurrentCultureIgnoreCase;
             BoolOptions = boolOptions ?? new BoolOptions();
+            Sections = new Dictionary<string, IniSection>(StringComparer);
             Comments = [];
-            CommentCharacter = ';';
+            DateTimeFormat = DefaultDateTimeFormat;
+            CommentCharacter = DefaultCommentCharacter;
         }
 
         /// <summary>
@@ -226,15 +232,17 @@ namespace SoftCircuits.IniFileParser
 
             // Tracks the current section
             IniSection? section = null;
+            string? line;
 
             // Clear any existing data
             Clear();
 
-            string? line;
-
-            while ((line = reader.ReadLine()) != null)
+            // Read lines
+            line = reader.ReadLine();
+            while (line != null)
             {
                 ParseLine(line, ref section);
+                line = reader.ReadLine();
             }
         }
 
@@ -253,18 +261,25 @@ namespace SoftCircuits.IniFileParser
 
             // Tracks the current section
             IniSection? section = null;
+            string? line;
 
             // Clear any existing data
             Clear();
 
-            string? line;
-
-            while ((line = await reader.ReadLineAsync()) != null)
+            // Read lines
+            line = await reader.ReadLineAsync();
+            while (line != null)
             {
                 ParseLine(line, ref section);
+                line = await reader.ReadLineAsync();
             }
         }
 
+        /// <summary>
+        /// Parses a line from an INI file.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <param name="section">Reference to the <see cref="IniSection"/> that represents the current section.</param>
         private void ParseLine(string line, ref IniSection? section)
         {
             // Trim leading whitespace
@@ -272,82 +287,106 @@ namespace SoftCircuits.IniFileParser
             while (start < line.Length && char.IsWhiteSpace(line[start]))
                 start++;
 
+            // Ignore empty lines
+            if (start >= line.Length)
+                return;
+
             // Process line
-            if (start < line.Length)
+            if (line[start] == CommentCharacter)
             {
-                if (line[start] == CommentCharacter)
-                {
-                    // Store comments
+                // Store comment
+                start++;
 #if !NETSTANDARD2_0
-                    Comments.Add(line[1..]);
+                Comments.Add(line[start..]);
 #else
-                    Comments.Add(line.Substring(1));
+                Comments.Add(line.Substring(start));
 #endif
-                }
-                else if (line[start] == '[')
-                {
-                    // Parse section header
+            }
+            else if (line[start] == '[')
+            {
+                // Parse section header
+                start++;
+                int pos = line.IndexOf(']', start);
+                if (pos == -1)
+                    pos = line.Length;
+
+                // Trim whitespace
+                while (start < pos && char.IsWhiteSpace(line[start]))
                     start++;
-                    int pos = line.IndexOf(']', start);
-                    if (pos == -1)
-                        pos = line.Length;
+                while (pos > start && char.IsWhiteSpace(line[pos - 1]))
+                    pos--;
+
+                if (pos > start)
+                {
 #if !NETSTANDARD2_0
-                    string name = line[start..pos].Trim();
+                    string name = line[start..pos];
 #else
-                    string name = line.Substring(start, pos - start).Trim();
+                    string name = line.Substring(start, pos - start);
 #endif
-                    if (name.Length > 0)
+                    // Add section if it doesn't already exist
+                    if (!Sections.ContainsKey(name))
                     {
-                        // Add section if it doesn't already exist
-                        if (!Sections.TryGetValue(name, out section))
-                        {
-                            section = new IniSection(name, StringComparer);
-                            Sections.Add(section.Name, section);
-                        }
+                        section = new IniSection(name, StringComparer);
+                        Sections.Add(section.Name, section);
                     }
+                }
+            }
+            else
+            {
+                // Parse setting name and value
+                string name, value;
+
+                int pos = line.IndexOf('=', start);
+                if (pos == -1)
+                {
+                    pos = line.Length;
+                    // Trim whitespace
+                    while (pos > start && char.IsWhiteSpace(line[pos - 1]))
+                        pos--;
+#if !NETSTANDARD2_0
+                    name = line[start..pos];
+#else
+                    name = line.Substring(start, pos - start);
+#endif
+                    value = string.Empty;
                 }
                 else
                 {
-                    // Parse setting name and value
-                    string name, value;
+                    // Do not trim end of value
+#if !NETSTANDARD2_0
+                    value = line[(pos + 1)..];
+#else
+                    value = line.Substring(pos + 1);
+#endif
+                    // Trim whitespace
+                    while (pos > start && char.IsWhiteSpace(line[pos - 1]))
+                        pos--;
+#if !NETSTANDARD2_0
+                    name = line[start..pos];
+#else
+                    name = line.Substring(start, pos - start);
+#endif
+                }
 
-                    int pos = line.IndexOf('=', start);
-                    if (pos == -1)
+                if (name.Length > 0)
+                {
+                    // Ensure we have a section
+                    if (section == null)
                     {
-                        name = line.Trim();
-                        value = string.Empty;
+                        section = new IniSection(DefaultSectionName, StringComparer);
+                        Sections.Add(section.Name, section);
+                    }
+
+                    if (section.TryGetValue(name, out IniSetting? setting))
+                    {
+                        // Override previously read value
+                        setting.Value = value;
                     }
                     else
                     {
-#if !NETSTANDARD2_0
-                        name = line[start..pos].Trim();
-                        value = line[(pos + 1)..];    // Do not trim value
-#else
-                        name = line.Substring(start, pos - start).Trim();
-                        value = line.Substring(pos + 1);    // Do not trim value
-#endif
-                    }
-
-                    if (name.Length > 0)
-                    {
-                        // Ensure we have a section
-                        if (section == null)
-                        {
-                            section = new IniSection(DefaultSectionName, StringComparer);
-                            Sections.Add(section.Name, section);
-                        }
-
-                        if (section.TryGetValue(name, out IniSetting? setting))
-                        {
-                            // Override previously read value
-                            setting.Value = value;
-                        }
-                        else
-                        {
-                            // Create new setting
-                            setting = new IniSetting { Name = name, Value = value };
-                            section.Add(name, setting);
-                        }
+                        // Create new setting
+                        setting = new IniSetting { Name = name, Value = value };
+                        section.Add(name, setting);
                     }
                 }
             }
@@ -409,7 +448,7 @@ namespace SoftCircuits.IniFileParser
         }
 
         /// <summary>
-        /// Asynchronouly saves the current settings to an INI file. If the file already exists, it is
+        /// Asynchronously saves the current settings to an INI file. If the file already exists, it is
         /// overwritten.
         /// </summary>
         /// <param name="path">Path of the INI file to write settings to.</param>
@@ -442,32 +481,8 @@ namespace SoftCircuits.IniFileParser
             ArgumentNullException.ThrowIfNull(writer);
 #endif
 
-            bool firstLine = true;
-
-            // Write comments
-            if (Comments.Count > 0)
-            {
-                foreach (string? comment in Comments)
-                    writer.WriteLine($"{CommentCharacter}{comment ?? string.Empty}");
-                firstLine = false;
-            }
-
-            // Write settings
-            foreach (IniSection section in Sections.Values)
-            {
-                if (section.Count > 0)
-                {
-                    // Write empty line if starting new section
-                    if (firstLine)
-                        firstLine = false;
-                    else
-                        writer.WriteLine();
-
-                    writer.WriteLine($"[{section.Name}]");
-                    foreach (IniSetting setting in section.Values)
-                        writer.WriteLine(setting.ToString());
-                }
-            }
+            foreach (string line in GetSaveLines())
+                writer.WriteLine(line);
         }
 
         /// <summary>
@@ -485,13 +500,22 @@ namespace SoftCircuits.IniFileParser
             ArgumentNullException.ThrowIfNull(writer);
 #endif
 
+            foreach (string line in GetSaveLines())
+                await writer.WriteLineAsync(line);
+        }
+
+        /// <summary>
+        /// Builds the lines to be written to an INI file. This includes comment lines and section and setting lines.
+        /// </summary>
+        private IEnumerable<string> GetSaveLines()
+        {
             bool firstLine = true;
 
             // Write comments
             if (Comments.Count > 0)
             {
                 foreach (string? comment in Comments)
-                    await writer.WriteLineAsync($"{CommentCharacter}{comment ?? string.Empty}");
+                    yield return $"{CommentCharacter}{comment ?? string.Empty}";
                 firstLine = false;
             }
 
@@ -504,11 +528,11 @@ namespace SoftCircuits.IniFileParser
                     if (firstLine)
                         firstLine = false;
                     else
-                        writer.WriteLine();
+                        yield return string.Empty;
 
-                    await writer.WriteLineAsync($"[{section.Name}]");
+                    yield return $"[{section.Name}]";
                     foreach (IniSetting setting in section.Values)
-                        await writer.WriteLineAsync(setting.ToString());
+                        yield return setting.ToString();
                 }
             }
         }
@@ -553,12 +577,8 @@ namespace SoftCircuits.IniFileParser
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a <see cref="System.Int32"/> value.</param>
         /// <returns>Returns the specified setting value as an <see cref="System.Int32"/> value.</returns>
-        public int GetSetting(string section, string setting, int defaultValue)
-        {
-            return int.TryParse(GetSetting(section, setting), out int value) ?
-                value :
-                defaultValue;
-        }
+        public int GetSetting(string section, string setting, int defaultValue) =>
+            int.TryParse(GetSetting(section, setting), out int value) ? value : defaultValue;
 
         /// <summary>
         /// Returns the value of an INI setting as a <see cref="System.Double"/> value.
@@ -568,12 +588,8 @@ namespace SoftCircuits.IniFileParser
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a <see cref="System.Double"/> value.</param>
         /// <returns>Returns the specified setting value as a <see cref="System.Double"/> value.</returns>
-        public double GetSetting(string section, string setting, double defaultValue)
-        {
-            return double.TryParse(GetSetting(section, setting), out double value) ?
-                value :
-                defaultValue;
-        }
+        public double GetSetting(string section, string setting, double defaultValue) =>
+            double.TryParse(GetSetting(section, setting), out double value) ? value : defaultValue;
 
         /// <summary>
         /// Returns the value of an INI setting as a <see cref="System.Boolean"/> value.
@@ -583,12 +599,8 @@ namespace SoftCircuits.IniFileParser
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a <see cref="System.Boolean"/> value.</param>
         /// <returns>Returns the specified setting value as a <see cref="System.Boolean"/>.</returns>
-        public bool GetSetting(string section, string setting, bool defaultValue)
-        {
-            return BoolOptions.TryParse(GetSetting(section, setting), out bool value) ?
-                value :
-                defaultValue;
-        }
+        public bool GetSetting(string section, string setting, bool defaultValue) =>
+            BoolOptions.TryParse(GetSetting(section, setting), out bool value) ? value : defaultValue;
 
         /// <summary>
         /// Returns the value of an INI setting as a <see cref="System.DateTime"/> value.
@@ -598,12 +610,8 @@ namespace SoftCircuits.IniFileParser
         /// <param name="defaultValue">The value to return if the setting was not found,
         /// or if it could not be converted to a <see cref="System.DateTime"/> value.</param>
         /// <returns>Returns the specified setting value as a <see cref="System.DateTime"/>.</returns>
-        public DateTime GetSetting(string section, string setting, DateTime defaultValue)
-        {
-            return DateTime.TryParseExact(GetSetting(section, setting), DateTimeFormat, null, DateTimeStyles.None, out DateTime value) ?
-                value :
-                defaultValue;
-        }
+        public DateTime GetSetting(string section, string setting, DateTime defaultValue) =>
+            DateTime.TryParseExact(GetSetting(section, setting), DateTimeFormat, null, DateTimeStyles.None, out DateTime value) ? value : defaultValue;
 
         /// <summary>
         /// Returns all the section names in the current INI file.
@@ -625,9 +633,7 @@ namespace SoftCircuits.IniFileParser
             ArgumentNullException.ThrowIfNull(section);
 #endif
 
-            return (Sections.TryGetValue(section, out IniSection? iniSection)) ?
-                iniSection.Values :
-                [];
+            return (Sections.TryGetValue(section, out IniSection? iniSection)) ? iniSection.Values : [];
         }
 
         #endregion
@@ -735,13 +741,10 @@ namespace SoftCircuits.IniFileParser
             ArgumentNullException.ThrowIfNull(setting);
 #endif
             if (Sections.TryGetValue(section, out IniSection? iniSection))
-            {
                 return iniSection.Remove(setting);
-            }
+
             return false;
         }
-
-        #endregion
 
         /// <summary>
         /// Clears all sections, settings and comments.
@@ -751,5 +754,8 @@ namespace SoftCircuits.IniFileParser
             Sections.Clear();
             Comments.Clear();
         }
+
+        #endregion
+
     }
 }

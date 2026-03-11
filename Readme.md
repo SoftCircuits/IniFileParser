@@ -6,7 +6,7 @@
 Install-Package SoftCircuits.IniFileParser
 ```
 
-`IniFile` is a lightweight .NET class library that makes it easy to read and write INI files. It provide direct support for `string`, `int`, `double` and `bool` setting. It can return all of the sections in an INI file, and also return all the settings within a particular INI-file section.
+`IniFile` is a lightweight .NET class library that makes it easy to read and write INI files. It provide direct support for reading and writing `string`, `int`, `double` and `bool` settings. It can return all of the sections in an INI file, and also return all the settings within a particular INI-file section.
 
 #### Writing Settings
 
@@ -57,16 +57,16 @@ IEnumerable<string> sections = file.GetSections();
 Use the `GetSectionSettings()` method to retrieve all the settings in a section.
 
 ```cs
-IEnumerable<IniSetting> settings = file.GetSectionSettings(IniFile.DefaultSectionName);
+IEnumerable<IniSetting> settings = file.GetSectionSettings(sectionName);
 ```
 
 #### Comments and Empty Lines
 
-By default, any line with a semicolon (;) as the first non-space character is assumed to be a comment. The comment character can be changed by setting the `CommentCharacter` property.
+`IniFile` provides support for file comments. Comments can provide notes that are otherwise ignored by the parser. By default, any line with a semicolon (;) as the first non-space character is assumed to be a comment. The comment character can be changed by setting the `CommentCharacter` property.
 
-In addition, any comments found when reading an INI file are stored in the `Comments` collection. And any comments in this collection will be written when saving an INI file. This makes it easy to add comments to INI files you create, or to maintain comments in INI files you modify. (Note, however, that all comments are written to the start of the INI file regardless of where those comments might have been when read.)
+Any comments found when reading an INI file are stored in the `Comments` collection. And any comments in this collection will be written when saving an INI file. This makes it easy to add comments to INI files you create, or to maintain comments in INI files you modify. (Note, however, that all comments are written to the start of the INI file regardless of where those comments might have been when read.)
 
-Empty lines are also ignored.
+Empty lines are ignored.
 
 #### Custom Boolean Handling
 

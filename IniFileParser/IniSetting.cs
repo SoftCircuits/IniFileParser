@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019-2024 Jonathan Wood (www.softcircuits.com)
+﻿// Copyright (c) 2019-2026 Jonathan Wood (www.softcircuits.com)
 // Licensed under the MIT license.
 //
 
@@ -23,8 +23,7 @@ namespace SoftCircuits.IniFileParser
         /// Converts this <see cref="IniSetting"></see> to a string.
         /// </summary>
         /// <remarks>
-        /// This method is used to write each setting to the INI file and
-        /// so the result must fit that format.
+        /// Returns this setting formatted appropriately for writing to an INI file.
         /// </remarks>
         public override string ToString() => $"{Name}={Value}";
     }
