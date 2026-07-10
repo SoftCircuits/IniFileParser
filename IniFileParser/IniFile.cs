@@ -27,6 +27,12 @@ namespace SoftCircuits.IniFileParser
         public List<string?> Comments { get; private set; }
 
         /// <summary>
+        /// If <c>true</c>, leading and trailing whitespace is removed from setting values.
+        /// The default value is <c>false</c>, which preserves any whitespace in setting values.
+        /// </summary>
+        public bool TrimValues { get; set; } = false;
+
+        /// <summary>
         /// Default section name. Used for any settings found outside a section header.
         /// </summary>
         public const string DefaultSectionName = "General";
@@ -352,13 +358,33 @@ namespace SoftCircuits.IniFileParser
                 }
                 else
                 {
-                    // Do not trim end of value
+                    if (TrimValues)
+                    {
+                        // Trim leading whitespace
+                        int pos2 = pos + 1;
+                        while (pos2 < line.Length && char.IsWhiteSpace(line[pos2]))
+                            pos2++;
+                        // Trim trailing whitespace
+                        int end = line.Length;
+                        while (end > pos2 && char.IsWhiteSpace(line[end - 1]))
+                            end--;
 #if !NETSTANDARD2_0
-                    value = line[(pos + 1)..];
+                        value = line[pos2..end];
 #else
-                    value = line.Substring(pos + 1);
+                        value = line.Substring(pos2, end - pos2);
 #endif
-                    // Trim whitespace
+                    }
+                    else
+                    {
+                        // Do not trim whitespace from value
+#if !NETSTANDARD2_0
+                        value = line[(pos + 1)..];
+#else
+                        value = line.Substring(pos + 1);
+#endif
+                    }
+
+                    // Trim whitespace from name
                     while (pos > start && char.IsWhiteSpace(line[pos - 1]))
                         pos--;
 #if !NETSTANDARD2_0

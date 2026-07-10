@@ -23,9 +23,9 @@ The SetSetting() method is overloaded to accept different value types. The GetSe
     <RepositoryType>git</RepositoryType>
     <PackageTags>ini ini-file inifile parser ini-parser parse parsing</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>3.0.0</Version>
+    <Version>3.1.0</Version>
     <AssemblyVersion></AssemblyVersion>
-    <PackageReleaseNotes>Optimized INI file line parsing; Added support for .NET 10; Minor fixes and tweaks.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added TrimValues property; Minor fixes and tweaks.</PackageReleaseNotes>
     <FileVersion></FileVersion>
     <PackageIcon>Logo_64x64.png</PackageIcon>
     <PackageIconUrl />

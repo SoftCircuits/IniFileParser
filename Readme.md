@@ -44,6 +44,8 @@ bool active = file.GetSetting(IniFile.DefaultSectionName, "Active", false);
 
 If any settings are found that are not under a section header, they will be added to the `IniFile.DefaultSectionName` section.
 
+Note: By default, leading and trailing spaces are not trimmed from string setting values. To trim spaces from values, set the `TrimValues` property to `true`.
+
 #### Reading All Sections in the File
 
 Use the `GetSections()` method to retrieve all the sections in the file.

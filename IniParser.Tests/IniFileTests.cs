@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static System.Collections.Specialized.BitVector32;
 
 [assembly: Parallelize]
 
@@ -192,6 +193,52 @@ namespace IniParser.Tests
                     Assert.AreEqual(Value, file.GetSetting(section, Name, false));
                 foreach ((string Name, DateTime Value) in DateTimeValues)
                     Assert.AreEqual(Value, file.GetSetting(section, Name, DateTime.MinValue));
+            }
+        }
+
+        private readonly (string Name, string Value)[] StringValuesWithWhitespace =
+        [
+            ("gbmoAGoUAX", "nhsvoVCFeS"),
+            ("XknXpFZwAn", " lWShEVKQja"),
+            ("HDekUKYhQI", "JECcqkbsWj "),
+            ("OMzEAOThDc", "  AOLxPMBlys"),
+            ("nLQfiLEUbC", "IwmKthVzgI  "),
+            ("pBUqOjUVrP", "   KUlfghqlwM"),
+            ("vMKHoVuDdp", "GLNbCnhGQR   "),
+            ("yhUWOpEMys", " hQlQolVhVy "),
+            ("cxIygWRbgc", "  jjYvzGlYEg  "),
+            ("iBJOskHHDX", "      DazniZGfot      "),
+        ];
+
+
+        [TestMethod]
+        public void TestTrimValues()
+        {
+            IniFile file = new();
+
+            foreach ((string Name, string Value) in StringValuesWithWhitespace)
+                file.SetSetting(IniFile.DefaultSectionName, Name, Value);
+
+            byte[] buffer = SaveToBytes(file);
+
+            file.Clear();
+            Assert.AreEqual(0, file.GetSections().Count());
+
+            LoadFromBytes(file, buffer);
+            foreach ((string Name, string Value) in StringValuesWithWhitespace)
+            {
+                Assert.AreEqual(Value, file.GetSetting(IniFile.DefaultSectionName, Name, string.Empty));
+                Assert.AreEqual(Value, file.GetSetting(IniFile.DefaultSectionName, Name, string.Empty));
+                Assert.AreEqual(Value, file.GetSetting(IniFile.DefaultSectionName, Name, string.Empty));
+            }
+
+            file.TrimValues = true;
+            LoadFromBytes(file, buffer);
+            foreach ((string Name, string Value) in StringValuesWithWhitespace)
+            {
+                Assert.AreEqual(Value.Trim(), file.GetSetting(IniFile.DefaultSectionName, Name, string.Empty));
+                Assert.AreEqual(Value.Trim(), file.GetSetting(IniFile.DefaultSectionName, Name, string.Empty));
+                Assert.AreEqual(Value.Trim(), file.GetSetting(IniFile.DefaultSectionName, Name, string.Empty));
             }
         }
 
